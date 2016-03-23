@@ -826,7 +826,7 @@
                     android:text="@string/item_a1.22" />
 
                 <Button
-                    android:id="@+id/note_btn"
+                    android:id="@+id/note_btn_temporarily"
                     style="@style/btn_style"
                     android:layout_width="wrap_content"
                     android:padding="@dimen/btn_padding"
@@ -1192,7 +1192,7 @@
                     android:text="@string/item_b2.10" />
 
                 <Button
-                    android:id="@+id/noteb_btn"
+                    android:id="@+id/note_btn_never"
                     style="@style/btn_style"
                     android:layout_width="wrap_content"
                     android:padding="@dimen/btn_padding"

@@ -82,15 +82,9 @@ public class LdFingerprintReader implements IfingerprintReader {
 
     @Override
     public int open() {
-        // ZA_finger.fppower(1);
-        // ZA_finger.cardpower(1);
+
         za_finger.finger_power_on();
-        try {
-            thread.sleep(200);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
         int status = 0;
         if (1 == usborcomtype) {
             LongDunD8800_CheckEuq();
@@ -99,35 +93,9 @@ public class LdFingerprintReader implements IfingerprintReader {
         } else {
             int fd = getrwusbdevices();
             Log.e(TAG, "zhw === open fd: " + fd);
-
-            //try {
-            //	Thread.sleep(1000);
-            //} catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            //	e.printStackTrace();
-            //}
             status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
-
-            //a6.ZAZCloseDeviceEx();
-
-            //fd=getrwusbdevices();
-            //Log.e(TAG, "zhw === open fd: " + fd);
-            //status = a6.ZAZOpenDeviceEx(fd, 5, 3, 12, 0, 0);
-
-
         }
-        Log.e(TAG, " open status: " + status);
-        //offLine(true);
-
-        if (status == 1) {
-            Toast.makeText(mActivity, "打开设备成功",
-                    Toast.LENGTH_SHORT).show();
-//            button.setText("关         闭");
-        } else {
-            Toast.makeText(mActivity, "打开设备失败",
-                    Toast.LENGTH_SHORT).show();
-        }
-        return 0;
+        return status;
     }
 
     @Override
@@ -137,37 +105,9 @@ public class LdFingerprintReader implements IfingerprintReader {
         fpflag = true;
         fpcharflag = true;
         fpmatchflag = true;
-        try {
-            thread.sleep(200);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
         fpflag = false;
         readsfpimg();
-//				int nRet;
-//				Log.d(TAG, "Enroll: Please press finger1......");
-//				while ((nRet = a6.ZAZGetImage(DEV_ADDR)) == PS_NO_FINGER) {
-//
-//					try {
-//						Thread.sleep(50);
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//
-//				Log.d(TAG, " UpImage: ");
-//				int[] len = { 0, 0 };
-//				char[] Image = new char[256 * 288];
-//				a6.ZAZUpImage(DEV_ADDR, Image, len);
-//
-//				Log.d(TAG, " UpImage: len " + len[0]);
-//
-//				String str = "/mnt/sdcard/test.bmp";
-//
-//				a6.ZAZImgData2BMP(Image, str);
-
 
     }
 
@@ -187,8 +127,6 @@ public class LdFingerprintReader implements IfingerprintReader {
             if (fpflag) return;
             if (timecount > Constants.COUNT_DOWN_TIME) {
                 temp = "读指纹等待超时" + "\r\n";
-//                mtvMessage.setText(temp);
-                onFingerprintReadCallback.onFingerPrintInfo(null);
                 return;
             }
             int nRet = 0;
@@ -200,24 +138,20 @@ public class LdFingerprintReader implements IfingerprintReader {
                 String str = "/mnt/sdcard/test.bmp";
                 a6.ZAZImgData2BMP(Image, str);
                 temp = "获取图像成功";
-//                mtvMessage.setText(temp);
-                onFingerprintReadCallback.onFingerPrintInfo(null);
+
                 Bitmap bmpDefaultPic;
                 bmpDefaultPic = BitmapFactory.decodeFile(str, null);
-//                mFingerprintIv.setImageBitmap(bmpDefaultPic);
+
                 onFingerprintReadCallback.onFingerPrintInfo(bmpDefaultPic);
             } else if (nRet == a6.PS_NO_FINGER) {
 //                temp = "正在读取指纹中   剩余时间:" + ((Constants.COUNT_DOWN_TIME - (ssend - ssart))) / 1000 + "s";
                 temp = ((Constants.COUNT_DOWN_TIME - (ssend - ssart))) / 1000 + "";
 //                mtvMessage.setText(temp);
-                onFingerprintReadCallback.onFingerPrintInfo(null);
                 objHandler_fp.postDelayed(fpTasks, 100);
             } else if (nRet == a6.PS_GET_IMG_ERR) {
                 temp = "获取图像错误";
                 Log.d(TAG, temp + "2: " + nRet);
                 objHandler_fp.postDelayed(fpTasks, 100);
-                //mtvMessage.setText(temp);
-                onFingerprintReadCallback.onFingerPrintInfo(null);
                 return;
             } else {
                 temp = "设备异常";
@@ -234,14 +168,12 @@ public class LdFingerprintReader implements IfingerprintReader {
         Process process = null;
         DataOutputStream os = null;
 
-        // for (int i = 0; i < 10; i++)
-        // {
+
         String path = "/dev/bus/usb/00*/*";
         String path1 = "/dev/bus/usb/00*/*";
         File fpath = new File(path);
         Log.d("*** LongDun D8800 ***", " check path:" + path);
-        // if (fpath.exists())
-        // {
+
         String command = "chmod 777 " + path;
         String command1 = "chmod 777 " + path1;
         Log.d("*** LongDun D8800 ***", " exec command:" + command);
@@ -328,10 +260,7 @@ public class LdFingerprintReader implements IfingerprintReader {
         //a6.ZAZBT_rev(tmp, tmp.length);
         int status = a6.ZAZCloseDeviceEx();
         Log.e(TAG, " close status: " + status);
-        //offLine(false);
-//        button.setText("打         开");
-        //ZA_finger.fppower(0);
-        //ZA_finger.cardpower(0);
+//        za_finger.finger_power_off();
         return status;
     }
 

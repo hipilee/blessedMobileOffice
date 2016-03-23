@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
@@ -82,8 +82,21 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         ifingerprintReader = LdFingerprintReader.getInstance(this);
         proxyFingerprintReader = ProxyFingerprintReader.getInstance(ifingerprintReader);
         proxyFingerprintReader.setOnFingerprintReadCallback(this);
-        proxyFingerprintReader.open();
+
+        int status = proxyFingerprintReader.open();
+        showOpenResult(status);
+
         proxyFingerprintReader.read();
+    }
+
+    private void showOpenResult(int status){
+        if (status == 1) {
+//            Toast.makeText(this, "打开设备成功",
+//                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "打开设备失败",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -153,20 +166,15 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
             mRunnable = new runnable();
             mHandler.postDelayed(mRunnable, 1000);
         } else {
-            MyLog.e(TAG, "finger print is null");
+            FingerprintActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(FingerprintActivity.this, "指纹设备异常",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-//        if (!TextUtils.isEmpty(info)) {
-//            state_txt.setText(info);
-//        }
-//        if (!TextUtils.isEmpty(timeout)) {
-//            if (timeout.equals(Constants.COUNT_DOWN_TIME + "")) {
-//                ToastUtils.showToast(this, R.string.identify_time_out);
-//                finish();
-//            } else {
-//                result_txt.setText(timeout);
-//            }
-//
-//        }
+
 
     }
 
@@ -221,17 +229,13 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        closeFingerReader();
+//        proxyFingerprintReader.close();
         if (countDownTimerUtil != null) {
             countDownTimerUtil.cancel();
             countDownTimerUtil = null;
         }
     }
 
-    private void closeFingerReader() {
-        if (ifingerprintReader != null) {
-            ifingerprintReader.close();
-        }
-    }
+
 }
 

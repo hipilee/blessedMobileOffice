@@ -13,7 +13,7 @@ import com.jiaying.workstation.utils.SetTopView;
  * 体检项目_询问
  */
 public class PhysicalExamAskActivity extends BaseActivity {
-    private Button note_btn;
+    private Button note_btn_temporarily, note_btn_never;
 
     @Override
     public void initVariables() {
@@ -24,12 +24,21 @@ public class PhysicalExamAskActivity extends BaseActivity {
     public void initView() {
         setContentView(R.layout.activity_physical_exam_ask);
         new SetTopView(this, R.string.title_activity_physical_exam_ask, true);
-        note_btn = (Button) findViewById(R.id.note_btn);
-        note_btn.setOnClickListener(new View.OnClickListener() {
+        note_btn_temporarily = (Button) findViewById(R.id.note_btn_temporarily);
+        note_btn_never = (Button) findViewById(R.id.note_btn_never);
+        note_btn_temporarily.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //备注
-                Intent intent= new Intent(PhysicalExamAskActivity.this, PhysicalExamNoteActivity.class);
+                //暂时不能献浆备注
+                Intent intent = new Intent(PhysicalExamAskActivity.this, PhysicalExamNoteActivity.class);
+                startActivity(intent);
+            }
+        });
+        note_btn_never.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //永远不能献浆备注
+                Intent intent = new Intent(PhysicalExamAskActivity.this, PhysicalExamNoteActivity.class);
                 startActivity(intent);
             }
         });
