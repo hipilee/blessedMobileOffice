@@ -11,21 +11,17 @@ import android.widget.Toast;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
-import com.jiaying.workstation.activity.CameraPreviewActivity;
 import com.jiaying.workstation.activity.MainActivity;
 import com.jiaying.workstation.activity.physicalexamination.PhysicalExamActivity;
 import com.jiaying.workstation.activity.physicalexamination.PhysicalExamResultActivity;
 import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
-import com.jiaying.workstation.constant.Constants;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.engine.LdFingerprintReader;
 import com.jiaying.workstation.engine.ProxyFingerprintReader;
 import com.jiaying.workstation.interfaces.IfingerprintReader;
 import com.jiaying.workstation.utils.CountDownTimerUtil;
-import com.jiaying.workstation.utils.MyLog;
 import com.jiaying.workstation.utils.SetTopView;
-import com.jiaying.workstation.utils.ToastUtils;
 
 /*
 指纹认证模块
@@ -186,7 +182,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
             if (type == TypeConstant.TYPE_REG) {
                 //登记的话就到采集人脸
 //                it = new Intent(FingerprintActivity.this, FaceCollectionActivity.class);
-                it = new Intent(FingerprintActivity.this, CameraPreviewActivity.class);
+                it = new Intent(FingerprintActivity.this, FaceCollectionActivity.class);
             } else if (type == TypeConstant.TYPE_BLOODPLASMACOLLECTION) {
                 //献浆的，去选择浆机
                 it = new Intent(FingerprintActivity.this, SelectPlasmaMachineActivity.class);

@@ -142,20 +142,15 @@ public class LdIdReader implements IidReader {
 
                             temp += "读卡完成" + "\r\n";
                             temp += "耗时:" + timecount + "ms";
-//                        mCallback.onResultInfo(temp, null);
                             sendIdCard();
                         } else {
                             readStatus = 4;
 
-                            temp += "正在读卡中";
-//                        mCallback.onResultInfo(temp, null);
                         }
                     }
-//                mCallback.onResultInfo(temp, null);
                     break;
                 default:
                     if (ZAZAPI.readCard() != null)
-                        //if(ZAZAPI.FindIDCard())
                         readStatus = 5;
                     else
                         readStatus = 0;
@@ -187,7 +182,6 @@ public class LdIdReader implements IidReader {
             card.setMonth(LDAPI.idcard.birthday.substring(4, 6));
             card.setDay(LDAPI.idcard.birthday.substring(6, 8));
             card.setIdcardno(LDAPI.idcard.idcardno);
-            Bitmap bit = ZAZAPI.getPhotoBmp();
             card.setPhotoBmp(ZAZAPI.getPhotoBmp());
             onIdReadCallback.onRead(card);
         }

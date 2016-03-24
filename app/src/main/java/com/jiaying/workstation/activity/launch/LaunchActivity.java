@@ -8,6 +8,7 @@ import android.softfan.dataCenter.DataCenterClientService;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.loginandout.LoginActivity;
+import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
 import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
 
 /**
@@ -22,7 +23,7 @@ public class LaunchActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
-        connectTcpIpServer();
+//        connectTcpIpServer();
         mHandler.postDelayed(new runnable(), 3000);
     }
 
@@ -30,6 +31,7 @@ public class LaunchActivity extends Activity {
         @Override
         public void run() {
             Intent it = new Intent(LaunchActivity.this, LoginActivity.class);
+//            Intent it = new Intent(LaunchActivity.this, FaceCollectionActivity.class);
             startActivity(it);
             finish();
         }

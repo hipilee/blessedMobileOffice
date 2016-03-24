@@ -29,30 +29,75 @@ public class FaceCollector implements IfaceCollector {
     private Bitmap bitmap = null;
     private OnFaceCollectCallback onFaceCollectCallback;
     private Activity activity;
-    SurfaceView sfvBottom;
-    SurfaceViewBottomCallback sfvBottomCallback;
+    private boolean isCollect, isCameraReady;
+    private Handler handlerReadyToCollect;
+    private SurfaceView sfvBottom;
+    private SurfaceViewBottomCallback sfvBottomCallback;
     private static FaceCollector faceCollector = null;
-    Camera camera;
-    int cameraID;
-    Camera.Parameters cameraParameter;
-    boolean isFocus, isFlash = false;
+    private Camera camera;
+    private int cameraID;
+    private Camera.Parameters cameraParameter;
+    private boolean isFocus, isFlash = false;
     private final int SUCCESS = 1;
     //this list used to save the areas which will be focused
-    List<Camera.Area> focuAreas;
+    private List<Camera.Area> focuAreas;
 
     //the size of focused area
-    Rect focusRect = new Rect(-300, -300, 300, 300);
-    int finger, fptNO;
-    FpGetAutofocusCallback fpGetAfCallback;
-    Camera.Area autoFocusArea;
+    private Rect focusRect = new Rect(-300, -300, 300, 300);
+    private int finger, fptNO;
+    private FpGetAutofocusCallback fpGetAfCallback;
+    private Camera.Area autoFocusArea;
     final int CONTINUE = 0, STOP = 1;
-    TakeFrameCallback tfCallback;
-    MsgHandler takeFrameHandler;
+    private TakeFrameCallback tfCallback;
 
 
     private FaceCollector(Activity activity, SurfaceView sfvBottom) {
         this.activity = activity;
         this.sfvBottom = sfvBottom;
+        handlerReadyToCollect = new HandlerReadyToCollect();
+    }
+
+    public synchronized static FaceCollector getInstance(Activity activity, SurfaceView sfvBottom) {
+
+        faceCollector = new FaceCollector(activity, sfvBottom);
+
+        return faceCollector;
+    }
+
+    private final class HandlerReadyToCollect extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.arg1) {
+                case 1:
+                    isCollect = true;
+                    if (isCollect && isCameraReady && camera!=null) {
+                        cameraParameter.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                        camera.setParameters(cameraParameter);
+                        camera.autoFocus(fpGetAfCallback);
+                    }
+                    break;
+                case 2:
+                    isCameraReady = true;
+                    if (isCollect && isCameraReady && camera!=null) {
+                        cameraParameter.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                        camera.setParameters(cameraParameter);
+                        camera.autoFocus(fpGetAfCallback);
+                    }
+                    break;
+                case 3:
+                    if (isCollect && isCameraReady && camera!=null) {
+                        cameraParameter.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                        camera.setParameters(cameraParameter);
+                        camera.autoFocus(fpGetAfCallback);
+                    }
+                    break;
+            }
+            super.handleMessage(msg);
+        }
+    }
+
+    @Override
+    public int open() {
         //SurfaceView添加回调接口
         sfvBottomCallback = new SurfaceViewBottomCallback();
         sfvBottom.getHolder().addCallback(sfvBottomCallback);
@@ -60,75 +105,28 @@ public class FaceCollector implements IfaceCollector {
         focuAreas = new ArrayList<Camera.Area>();
         fpGetAfCallback = new FpGetAutofocusCallback();
         autoFocusArea = new Camera.Area(focusRect, 1000);
-        takeFrameHandler = new MsgHandler();
         finger = 1;
         fptNO = 1;
-
-    }
-
-    public synchronized static FaceCollector getInstance(Activity activity, SurfaceView sfvBottom) {
-        if (faceCollector == null) {
-            faceCollector = new FaceCollector(activity, sfvBottom);
-
-        }
-        return faceCollector;
-    }
-
-    private final class MsgHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                //前count-1次继续采集
-                case CONTINUE: {
-                   if(camera != null){
-                       camera.autoFocus(fpGetAfCallback);
-                   }
-                    break;
-                }
-
-                //if the countth focus, collect this image.
-                case STOP: {
-                    onFaceCollectCallback.onCollect(bitmap);
-                    close();
-                    break;
-                }
-            }
-        }
-    }
-
-
-    @Override
-    public int close() {
-        tfCallback.setCount(0);
-        cameraParameter.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-        camera.setParameters(cameraParameter);
-        isFlash = false;
-//        if (bitmap != null) {
-//            bitmap.recycle();
-//            bitmap = null;
-//        }
         return 0;
     }
 
     @Override
     public void collect() {
-        cameraParameter.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-        camera.setParameters(cameraParameter);
-        camera.autoFocus(fpGetAfCallback);
+        Message msg = Message.obtain();
+        msg.arg1 = 1;
+        handlerReadyToCollect.sendMessage(msg);
     }
 
     @Override
-    public int open() {
-
+    public int close() {
+        //// TODO: 2016/3/24
         return 0;
     }
 
     @Override
-    public void setOnColectCallback(OnFaceCollectCallback onFaceCollectCallback) {
+    public void setOnCollectCallback(OnFaceCollectCallback onFaceCollectCallback) {
         this.onFaceCollectCallback = onFaceCollectCallback;
     }
-
 
     private final class SurfaceViewBottomCallback implements SurfaceHolder.Callback {
 
@@ -137,7 +135,6 @@ public class FaceCollector implements IfaceCollector {
 
 
             cameraParameter = camera.getParameters();
-
 //            cameraParameter.setPreviewSize(1920,1088);
             camera.setParameters(cameraParameter);
 
@@ -148,18 +145,16 @@ public class FaceCollector implements IfaceCollector {
                 e.printStackTrace();
             }
             camera.startPreview();
-            //turn on the light
-            cameraParameter.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-            isFlash = true;
-            camera.setParameters(cameraParameter);
-            camera.autoFocus(fpGetAfCallback);
+
+            Message msg = Message.obtain();
+            msg.arg1 = 2;
+            handlerReadyToCollect.sendMessage(msg);
         }
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
 
             //获取camera对象，给ivUI添加扫描矩形框,设置自动对焦区域
-//            ivUI.setImageBitmap(bitmapUI);
             camera = getBackCamera();
             focuAreas.add(autoFocusArea);
             cameraParameter = camera.getParameters();
@@ -217,7 +212,6 @@ public class FaceCollector implements IfaceCollector {
         camera.setDisplayOrientation(result);
     }
 
-
     private Camera getBackCamera() {
         Camera camera = null;
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
@@ -228,7 +222,7 @@ public class FaceCollector implements IfaceCollector {
             Camera.getCameraInfo(camIdx, cameraInfo);
             // get camerainfo of the Idth camera
 
-            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
             // CAMERA_FACING_FRONT or CAMERA_FACING_BACK
             {
                 try {
@@ -269,57 +263,44 @@ public class FaceCollector implements IfaceCollector {
 
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
-            count++;
-            if (count == 3) {
 
 
-                Camera.Parameters parameters = camera.getParameters();
+            Camera.Parameters parameters = camera.getParameters();
 
-                int imageFormat = parameters.getPreviewFormat();
-                int previewWidth = parameters.getPreviewSize().width;
-                int previewHeight = parameters.getPreviewSize().height;
+            int imageFormat = parameters.getPreviewFormat();
+            int previewWidth = parameters.getPreviewSize().width;
+            int previewHeight = parameters.getPreviewSize().height;
 
-                //将帧格式特定数据格式的数据经过转换为BitmapFactory可处理的格式
-                Rect rect = new Rect(0, 0, previewWidth, previewHeight);
-                YuvImage yuvImg = new YuvImage(data, imageFormat, previewWidth, previewHeight, null);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
-                yuvImg.compressToJpeg(rect, 100, bos);
-                byte[] tmp = bos.toByteArray();
-                bitmap = BitmapFactory.decodeByteArray(tmp, 0, tmp.length);
-                try {
-                    bos.flush();
-                    bos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                int fingerprintImageHeight = bitmap.getHeight();
-                int fingerprintImageWidth = bitmap.getWidth();
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                //截取取景框中的指纹图像，并将得到的bitmap旋转
-                bitmap = Bitmap.createBitmap(bitmap,
-                        (fingerprintImageWidth / 2) - 250, (fingerprintImageHeight / 2) - 200, 500, 400, matrix, true);
-
-                Message msgStop = Message.obtain();
-                msgStop.what = STOP;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                takeFrameHandler.sendMessage(msgStop);
-            } else {
-                //发送继续拍照的消息，这段代码必须放在照片保存完成之后！因为camera.setOneShotPreviewCallback(tfCallback);这句代码是异步的。
-                Message msgContinue = Message.obtain();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                msgContinue.what = CONTINUE;
-                takeFrameHandler.sendMessage(msgContinue);
-
+            //将帧格式特定数据格式的数据经过转换为BitmapFactory可处理的格式
+            Rect rect = new Rect(0, 0, previewWidth, previewHeight);
+            YuvImage yuvImg = new YuvImage(data, imageFormat, previewWidth, previewHeight, null);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
+            yuvImg.compressToJpeg(rect, 100, bos);
+            byte[] tmp = bos.toByteArray();
+            bitmap = BitmapFactory.decodeByteArray(tmp, 0, tmp.length);
+            try {
+                bos.flush();
+                bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            int fingerprintImageHeight = bitmap.getHeight();
+            int fingerprintImageWidth = bitmap.getWidth();
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            //截取取景框中的指纹图像，并将得到的bitmap旋转
+            bitmap = Bitmap.createBitmap(bitmap,
+                    (fingerprintImageWidth / 2) - 250, (fingerprintImageHeight / 2) - 200, 500, 400, matrix, true);
+
+            Message msgStop = Message.obtain();
+            onFaceCollectCallback.onCollect(bitmap, 0, 0, 0, 0);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            msgStop.arg1 = 3;
+            handlerReadyToCollect.sendMessageDelayed(msgStop, 3000);
         }
     }
 

@@ -107,52 +107,6 @@ public ObservableZXDCSignalListenerThread() {
 		}
 
 		while (isContinue) {
-			//*************************************************************
-			//            n++;
-			//            if (1 == n && checkSignal.check(Signal.CONFIRM)) {
-			//                Donor.setUserName(Integer.toString((new Random()).nextInt(100)));
-			//
-			//                dealSignal(Signal.CONFIRM);
-			//
-			//
-			//            }
-			//
-			//            if (2 == n && checkSignal.check(Signal.PUNCTURE)) {
-			////                try {
-			////                    Thread.sleep(3000);
-			////                } catch (InterruptedException e) {
-			////                    e.printStackTrace();
-			////                }
-			//
-			////                dealSignal(Signal.PUNCTURE);
-			//
-			//            }
-			//
-			//            if (3 == n && checkSignal.check(Signal.START)) {
-			////                try {
-			////                    Thread.sleep(3000);
-			////                } catch (InterruptedException e) {
-			////                    e.printStackTrace();
-			////                }
-			//                dealSignal(Signal.START);
-			//            }
-			//
-			//            if (4 == n && checkSignal.check(Signal.FIST)) {
-			//                try {
-			//                    Thread.sleep(3000);
-			//                } catch (InterruptedException e) {
-			//                    e.printStackTrace();
-			//                }
-			//                dealSignal(Signal.FIST);
-			//            }
-			//
-			//            if (20 == n && checkSignal.check(Signal.END)) {
-			//
-			//                dealSignal(Signal.END);
-			//
-			//            }
-
-			//                *******************************
 
 			synchronized (this) {
 				try {

@@ -68,11 +68,6 @@
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".activity.sensor.FaceCollectionActivity"
-            android:label="@string/title_activity_main"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
             android:name=".activity.sensor.IdentityCardActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="landscape"
@@ -156,9 +151,9 @@
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".activity.CameraPreviewActivity"
+            android:name=".activity.sensor.FaceCollectionActivity"
             android:label="@string/title_activity_pulp_machine_select_result"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

@@ -16,9 +16,9 @@ public class ProxyFaceCollector implements IfaceCollector {
     }
 
     public synchronized static ProxyFaceCollector getInstance(IfaceCollector ifaceCollector) {
-        if (proxyFaceCollector == null) {
-            proxyFaceCollector = new ProxyFaceCollector(ifaceCollector);
-        }
+
+        proxyFaceCollector = new ProxyFaceCollector(ifaceCollector);
+
         return proxyFaceCollector;
     }
 
@@ -33,12 +33,14 @@ public class ProxyFaceCollector implements IfaceCollector {
     }
 
     @Override
+    public void setOnCollectCallback(OnFaceCollectCallback onFaceCollectCallback) {
+        ifaceCollector.setOnCollectCallback(onFaceCollectCallback);
+    }
+
+    @Override
     public int open() {
         return ifaceCollector.open();
     }
 
-    @Override
-    public void setOnColectCallback(OnFaceCollectCallback onFaceCollectCallback) {
-        ifaceCollector.setOnColectCallback(onFaceCollectCallback);
-    }
+
 }

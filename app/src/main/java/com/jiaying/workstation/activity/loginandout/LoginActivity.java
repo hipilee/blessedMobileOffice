@@ -8,6 +8,7 @@ import android.widget.GridView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
 import com.jiaying.workstation.activity.sensor.FingerprintActivity;
 import com.jiaying.workstation.adapter.NurseAdapter;
 import com.jiaying.workstation.entity.NurseEntity;
@@ -51,6 +52,7 @@ public class LoginActivity extends BaseActivity {
                 //选择护士后就指纹认证
                 if (login_deal_flag.isFirst()) {
                     Intent it = new Intent(LoginActivity.this, FingerprintActivity.class);
+
                     startActivity(it);
                 }
             }

@@ -9,12 +9,13 @@ import android.view.SurfaceHolder;
  * 功能：人脸采集
  */
 public interface IfaceCollector {
+    int open();
     int close();
     void collect();
-    int open();
-    void setOnColectCallback(OnFaceCollectCallback onFaceCollectCallback);
+
+    void setOnCollectCallback(OnFaceCollectCallback onFaceCollectCallback);
 
      interface OnFaceCollectCallback {
-        public void onCollect(Bitmap btimap);
+        public void onCollect(Bitmap bitmap,int originX,int originY,int width,int height);
     }
 }

@@ -1,35 +1,46 @@
 package com.jiaying.workstation.activity.sensor;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
+import android.util.Log;
+import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.engine.FaceCollector;
+import com.jiaying.workstation.engine.ProxyFaceCollector;
+import com.jiaying.workstation.interfaces.IfaceCollector;
 import com.jiaying.workstation.utils.SetTopView;
+import com.jiaying.workstation.utils.ToastUtils;
 
-import android.hardware.Camera;
-
-import java.io.IOException;
-
-/*
-人脸采集
+/**
+ * 作者：lenovo on 2016/3/12 10:07
+ * 邮箱：353510746@qq.com
+ * 功能：
  */
-public class FaceCollectionActivity extends BaseActivity implements
-        SurfaceHolder.Callback {
-    private SurfaceView mCameraPreview;
-    private SurfaceHolder mSurfaceHolder;
-    private Camera mCamera;
+public class FaceCollectionActivity extends BaseActivity implements IfaceCollector.OnFaceCollectCallback {
+    SurfaceView sfvBottom;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    SurfaceView sfvTop;
+    ImageView ivFinger;
+    SurfaceViewTopCallback sfvTopCallback;
+    Button btnOk, btnAgain, btnFlash;
+    Bitmap bitmapUI;
+    String src, name, path, loginPath, succName, nameTemp;
 
-    }
+    private IfaceCollector ifaceCollector;
+    private ProxyFaceCollector proxyFaceCollector;
 
     @Override
     public void initVariables() {
@@ -38,13 +49,36 @@ public class FaceCollectionActivity extends BaseActivity implements
 
     @Override
     public void initView() {
-        setContentView(R.layout.activity_face_collection);
-        new SetTopView(this, R.string.title_activity_face_collection, false);
-        mCameraPreview = (SurfaceView) findViewById(R.id.sv_camera);
-        mSurfaceHolder = mCameraPreview.getHolder();
 
-        //人脸采集后就到登记成功页面
-        new Handler().postDelayed(new runnable(), 3000);
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.activity_camera_preview);
+        new SetTopView(this, R.string.face_collect, true);
+
+        //底层的sfvBottom用于显示实时的预览画面，ivUI在第二层显示矩形框，sfvTop在最顶层显示动画效果，ivFinger，用于显示获取到的指纹
+        sfvBottom = (SurfaceView) findViewById(R.id.sfvFrame);
+        ivFinger = (ImageView) findViewById(R.id.ivFinger);
+        sfvTop = (SurfaceView) findViewById(R.id.sfvAnimation);
+
+        sfvTopCallback = new SurfaceViewTopCallback();
+        sfvTop.getHolder().addCallback(sfvTopCallback);
+
+
+        //将最顶层的SurfaeView设置为透明,在该surface上可以画一些动画效果
+        sfvTop.setZOrderOnTop(true);
+        sfvTop.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+
+        //read in the UI bitmap of collection interface
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+
+
+        //采浆人脸
+        ifaceCollector = FaceCollector.getInstance(this, sfvBottom);
+        proxyFaceCollector = ProxyFaceCollector.getInstance(ifaceCollector);
+        proxyFaceCollector.setOnCollectCallback(this);
+        proxyFaceCollector.open();
+        proxyFaceCollector.collect();
+
     }
 
     @Override
@@ -52,153 +86,33 @@ public class FaceCollectionActivity extends BaseActivity implements
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (this.checkCameraHardware(this) && (mCamera == null)) {
-//            mCamera = getCamera();
-            mCamera = getFrontFacingCameraGingerbread();
-            if (mSurfaceHolder != null) {
-                setStartPreview(mCamera, mSurfaceHolder);
-            }
-        }
-        mSurfaceHolder.addCallback(this);
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-    }
 
-    /**
-     * 初始化相机
-     *
-     * @return camera
-     */
-    private Camera getCamera() {
-        Camera camera;
-        try {
-            camera = Camera.open();
-        } catch (Exception e) {
-            camera = null;
-        }
-        return camera;
-    }
-    //打开前置摄像头
-    private Camera getFrontFacingCameraGingerbread() {
-        int cameraCount = 0;
-        Camera cam = null;
-        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-        cameraCount = Camera.getNumberOfCameras();
 
-        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
-            Camera.getCameraInfo(camIdx, cameraInfo);
-            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                try {
-                    cam = Camera.open(camIdx);
-                } catch (RuntimeException e) {
-                }
-            }
-        }
+    private final class SurfaceViewTopCallback implements SurfaceHolder.Callback {
 
-        return cam;
-    }
-    //预览
-    private void setStartPreview(Camera camera, SurfaceHolder holder) {
-        try {
-            camera.setPreviewDisplay(holder);
-
-            camera.setDisplayOrientation(180);
-
-            camera.startPreview();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /*
-    是否支持摄像头
-     */
-    private boolean checkCameraHardware(Context context) {
-        return context.getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_CAMERA);
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-        if (mSurfaceHolder.getSurface() == null) {
-            return;
-        }
-        try {
-            mCamera.stopPreview();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        setStartPreview(mCamera, mSurfaceHolder);
-
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
-        releaseCamera();
-
-    }
-
-    /**
-     * 释放相机资源
-     */
-    private void releaseCamera() {
-        if (mCamera != null) {
-            mCamera.setPreviewCallback(null);
-            mCamera.stopPreview();
-            mCamera.release();
-            mCamera = null;
-        }
-    }
-//
-//    private int getCameraRotationDegrees(Activity activity) {
-//
-//        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-//        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-//        int degrees = 0;
-//        switch (rotation) {
-//            case Surface.ROTATION_0:
-//                degrees = 0;
-//                break;
-//
-//            case Surface.ROTATION_90:
-//                degrees = 90;
-//                break;
-//
-//            case Surface.ROTATION_180:
-//                degrees = 180;
-//                break;
-//
-//            case Surface.ROTATION_270:
-//                degrees = 270;
-//                break;
-//        }
-//        int result;
-//
-//        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-//            result = (cameraInfo.orientation + degrees) % 360;
-//            result = (360 - result) % 360;
-//            // compensate the mirror
-//        } else {
-//            // back-facing
-//            result = (cameraInfo.orientation - degrees + 360) % 360;
-//        }
-//        return result;
-//
-//    }
-
-    private class runnable implements Runnable {
         @Override
-        public void run() {
-            Toast.makeText(FaceCollectionActivity.this, "人脸采集成功", Toast.LENGTH_SHORT).show();
+        public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                                   int height) {
+        }
+
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+
+        }
+
+    }
+
+
+    @Override
+    public void onCollect(Bitmap bitmap, int originX, int originY, int width, int height) {
+        if (bitmap != null) {
+            ivFinger.setVisibility(View.VISIBLE);
+            ivFinger.setImageBitmap(bitmap);
         }
     }
 }
