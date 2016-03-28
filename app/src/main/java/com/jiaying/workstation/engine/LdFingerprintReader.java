@@ -258,6 +258,7 @@ public class LdFingerprintReader implements IfingerprintReader {
     public int close() {
         byte[] tmp = {5, 6, 7};
         //a6.ZAZBT_rev(tmp, tmp.length);
+        objHandler_fp.removeCallbacks(fpTasks);
         int status = a6.ZAZCloseDeviceEx();
         Log.e(TAG, " close status: " + status);
 //        za_finger.finger_power_off();

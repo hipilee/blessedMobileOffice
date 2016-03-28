@@ -82,7 +82,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         int status = proxyFingerprintReader.open();
         showOpenResult(status);
 
-        proxyFingerprintReader.read();
+
     }
 
     private void showOpenResult(int status){
@@ -107,6 +107,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         countDownTimerUtil = CountDownTimerUtil.getInstance(result_txt, this);
         countDownTimerUtil.start();
 
+        proxyFingerprintReader.read();
 
         switch (source) {
 
@@ -225,7 +226,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        proxyFingerprintReader.close();
+        proxyFingerprintReader.close();
         if (countDownTimerUtil != null) {
             countDownTimerUtil.cancel();
             countDownTimerUtil = null;

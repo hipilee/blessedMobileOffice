@@ -47,14 +47,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="@dimen/btn_padding"
-        android:text="询问健康状况记录"
-        android:textSize="@dimen/text_size_midle"
-        android:textStyle="bold" />
 
     <ScrollView
         android:layout_width="match_parent"

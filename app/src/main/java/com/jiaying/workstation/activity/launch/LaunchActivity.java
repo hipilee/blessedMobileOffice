@@ -17,24 +17,29 @@ import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
 public class LaunchActivity extends Activity {
     private Handler mHandler = new Handler();
 
-    public  static DataCenterClientService clientService = null;
+    public static DataCenterClientService clientService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
         connectTcpIpServer();
+
+        // 服务器联通过后才跳转到登陆界面
         mHandler.postDelayed(new runnable(), 3000);
     }
 
     private class runnable implements Runnable {
         @Override
         public void run() {
-            Intent it = new Intent(LaunchActivity.this, LoginActivity.class);
-//            Intent it = new Intent(LaunchActivity.this, FaceCollectionActivity.class);
-            startActivity(it);
-            finish();
+            goToLogin();
         }
+    }
+
+    private void goToLogin() {
+        Intent it = new Intent(LaunchActivity.this, LoginActivity.class);
+        startActivity(it);
+        finish();
     }
 
     //连服务器

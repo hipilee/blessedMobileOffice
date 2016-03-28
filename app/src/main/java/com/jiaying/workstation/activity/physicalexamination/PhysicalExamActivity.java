@@ -3,6 +3,7 @@ package com.jiaying.workstation.activity.physicalexamination;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AnalogClock;
 import android.widget.Button;
 
 import com.jiaying.workstation.R;
