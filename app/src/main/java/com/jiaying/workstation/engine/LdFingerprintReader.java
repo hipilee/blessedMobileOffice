@@ -65,16 +65,16 @@ public class LdFingerprintReader implements IfingerprintReader {
         defDeviceType = 2;
         defiCom = 3;
         defiBaud = 12;
-        thread = new HandlerThread("MyHandlerThread");
-        thread.start();
-        objHandler_fp = new Handler(thread.getLooper());//
+//        thread = new HandlerThread("MyHandlerThread");
+//        thread.start();
+//        objHandler_fp = new Handler(thread.getLooper());//
+        objHandler_fp = new Handler();//
         za_finger = new ZA_finger();
     }
 
     public synchronized static LdFingerprintReader getInstance(Activity activity) {
-        if (ldFingerprintReader == null) {
-            ldFingerprintReader = new LdFingerprintReader(activity);
-        }
+        ldFingerprintReader = new LdFingerprintReader(activity);
+
         return ldFingerprintReader;
     }
     //打开设备

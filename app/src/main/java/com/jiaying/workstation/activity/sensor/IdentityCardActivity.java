@@ -45,6 +45,10 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
 
     @Override
     public void initVariables() {
+
+        long start = System.currentTimeMillis();
+        long end = System.currentTimeMillis();
+
         //  身份证读取预备
         iidReader = LdIdReader.getInstance(this);
         proxyIdReader = ProxyIdReader.getInstance(iidReader);

@@ -14,9 +14,9 @@ public class ProxyIdReader implements IidReader {
     }
 
     public synchronized static ProxyIdReader getInstance(IidReader iidReader) {
-        if (proxyIdReader == null) {
+
             proxyIdReader = new ProxyIdReader(iidReader);
-        }
+
         return proxyIdReader;
     }
 

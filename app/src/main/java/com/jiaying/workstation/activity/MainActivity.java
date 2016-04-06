@@ -52,6 +52,7 @@ public class MainActivity extends BaseActivity {
                         fragmentManager.beginTransaction().replace(R.id.fragment_container, new PhysicalExamFragment()).commit();
                         break;
                     case R.id.btn_4:
+                        //采集血浆
                         fragmentManager.beginTransaction().replace(R.id.fragment_container, new BloodPlasmaCollectionFragment()).commit();
                         break;
                     case R.id.btn_5:

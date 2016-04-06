@@ -57,7 +57,7 @@ public class LoginActivity extends BaseActivity {
                 }
             }
         });
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 10; i++) {
             NurseEntity nurseEntity = new NurseEntity();
             nurseEntity.setName("护士" + i);
             nurseEntity.setWorkid("1232" + i);

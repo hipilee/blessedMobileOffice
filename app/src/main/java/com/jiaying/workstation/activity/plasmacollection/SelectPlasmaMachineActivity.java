@@ -44,13 +44,14 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent it = new Intent(SelectPlasmaMachineActivity.this,SelectPlasmaMachineResultActivity.class);
                 startActivity(it);
+                finish();
             }
         });
         mList = new ArrayList<PlasmaMachineEntity>();
         mAdapter = new PlasmaMachineSelectAdapter(mList, this);
         mGridView.setAdapter(mAdapter);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i < 3; i++) {
             PlasmaMachineEntity machine = new PlasmaMachineEntity();
             if (i % 2 == 0) {
                 machine.setCheck(true);
