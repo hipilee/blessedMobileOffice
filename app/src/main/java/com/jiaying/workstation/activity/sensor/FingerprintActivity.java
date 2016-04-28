@@ -15,6 +15,7 @@ import com.jiaying.workstation.activity.MainActivity;
 import com.jiaying.workstation.activity.physicalexamination.PhysicalExamActivity;
 import com.jiaying.workstation.activity.physicalexamination.PhysicalExamResultActivity;
 import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
+import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineResultActivity;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.engine.LdFingerprintReader;
@@ -22,6 +23,8 @@ import com.jiaying.workstation.engine.ProxyFingerprintReader;
 import com.jiaying.workstation.interfaces.IfingerprintReader;
 import com.jiaying.workstation.utils.CountDownTimerUtil;
 import com.jiaying.workstation.utils.SetTopView;
+
+import java.lang.reflect.Type;
 
 /*
 指纹认证模块
@@ -48,10 +51,10 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     private int source;
 
     private CountDownTimerUtil countDownTimerUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -82,7 +85,6 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         int status = proxyFingerprintReader.open();
         showOpenResult(status);
 
-
     }
 
     private void showOpenResult(int status){
@@ -99,6 +101,10 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     public void initView() {
         setContentView(R.layout.activity_fingerprint);
         new SetTopView(this, R.string.title_activity_fingerprint, true);
+        if(source==TypeConstant.TYPE_SELECT_MACHINE){
+            new SetTopView(this,R.string.read_worker_fp, true);
+        }
+
 
         result_txt = (TextView) findViewById(R.id.result_txt);
         state_txt = (TextView) findViewById(R.id.state_txt);
@@ -179,7 +185,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         @Override
         public void run() {
             Intent it = null;
-            int type = getIntent().getIntExtra(IntentExtra.EXTRA_TYPE, 0);
+            int type = getIntent().getIntExtra("source", 0);
             if (type == TypeConstant.TYPE_REG) {
                 //登记的话就到采集人脸
 //                it = new Intent(FingerprintActivity.this, FaceCollectionActivity.class);
@@ -201,7 +207,10 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
                 //体检完成后提交体检，医生打指纹后，显示体检结果
                 new SetTopView(FingerprintActivity.this, R.string.title_activity_fingerprint_doc, false);
                 it = new Intent(FingerprintActivity.this, PhysicalExamResultActivity.class);
-            } else {
+            } else if(type == TypeConstant.TYPE_SELECT_MACHINE){
+                it = new Intent(FingerprintActivity.this,SelectPlasmaMachineResultActivity.class);
+            }
+            else {
                 //其他的情况
                 it = new Intent(FingerprintActivity.this, MainActivity.class);
             }

@@ -1,7 +1,6 @@
 package com.jiaying.workstation.engine;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -17,11 +16,10 @@ public class LdIdReader implements IidReader {
     private OnIdReadCallback onIdReadCallback;
     long ssart = System.currentTimeMillis();
     long ssend = System.currentTimeMillis();
-    long times;
+    private HandlerThread readHandlerThread;
     private Handler cardHandler;
-    private HandlerThread readCardThread;
     private boolean readFlag = false;
-    private int readStatus = 0;
+    private int readStatus = 1;
     private static LdIdReader ldIdReader = null;
 
     private LDAPI ZAZAPI;
@@ -29,15 +27,14 @@ public class LdIdReader implements IidReader {
     private LdIdReader(Activity activity) {
         ZAZAPI = new LDAPI(activity, 4, 1);
         readFlag = true;
-//        readCardThread = new HandlerThread("MyHandlerThread");
-//        readCardThread.start();
-//        cardHandler = new Handler(readCardThread.getLooper());
-        cardHandler = new Handler();
+        readHandlerThread = new HandlerThread("readcard thread");
+        readHandlerThread.start();
+        cardHandler = new Handler(readHandlerThread.getLooper());
+//        cardHandler = new Handler();
     }
 
     public synchronized static LdIdReader getInstance(Activity activity) {
-
-            ldIdReader = new LdIdReader(activity);
+        ldIdReader = new LdIdReader(activity);
         return ldIdReader;
     }
 
@@ -61,20 +58,15 @@ public class LdIdReader implements IidReader {
 
     @Override
     public void read() {
-
+        open();
         //开始读取身份证
         readFlag = false;
-        ssart = System.currentTimeMillis();
-        ssend = System.currentTimeMillis();
         cardHandler.post(cardTasks);
     }
-
 
     private Runnable cardTasks = new Runnable() {
         public void run()// 运行该服务执行此函数
         {
-            String temp = "";
-            int ret = 0;
             long timecount = 0;
             Log.e("IDCARD readStatus = ", "" + readStatus);
             if (readFlag) {
@@ -82,12 +74,15 @@ public class LdIdReader implements IidReader {
             }
 
             switch (readStatus) {
-                case 0:
-                    readStatus++;
-                    break;
+
                 case 1:
                     ssart = System.currentTimeMillis();
-
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                    }
                     //进行寻卡操作，找到卡返回true，未找到返回false。
                     if (ZAZAPI.FindIDCard())
                         readStatus++;
@@ -107,12 +102,10 @@ public class LdIdReader implements IidReader {
                         readStatus = 3;
                     ssend = System.currentTimeMillis();
                     timecount = (ssend - ssart);
-                    Log.e("time = ", "" + timecount);
                     if (timecount > 5000) {
-                        Log.e("IDCARD readStatus = ", "超时" );
+                        Log.e("IDCARD readStatus = ", "超时");
                         readStatus = 0;
                     }
-
                     //读取身份证卡的信息，返回职位IDCard
                     break;
                 case 4:
@@ -121,7 +114,6 @@ public class LdIdReader implements IidReader {
                         readStatus++;
                     else
                         readStatus = 4;
-
                     ssend = System.currentTimeMillis();
                     timecount = (ssend - ssart);
                     if (timecount > 5000) {
@@ -129,30 +121,14 @@ public class LdIdReader implements IidReader {
                         readStatus = 0;
                     } else {
                         if (readStatus == 5) {
-                            timecount = (ssend - ssart);
-                            times = timecount;
-                            readStatus++;
-
-                            temp += "读卡完成" + "\r\n";
-                            temp += "耗时:" + timecount + "ms";
                             sendIdCard();
                         } else {
                             readStatus = 4;
                         }
                     }
                     break;
-                default:
-                    if (ZAZAPI.readCard() != null)
-                        readStatus = 5;
-                    else
-                        readStatus = 0;
-
-
-                    temp += "请拿起身份证重新刷卡";
-                    break;
 
             }
-
             cardHandler.postDelayed(cardTasks, 100);
 
         }
@@ -164,13 +140,14 @@ public class LdIdReader implements IidReader {
         if (LDAPI.idcard != null) {
 
             //读取到了身份证信息
-            IdentityCardEntity card = new IdentityCardEntity();
+            IdentityCardEntity card = IdentityCardEntity.getIntance();
             card.setName(LDAPI.idcard.name);
-//            card.setAddr(LDAPI.idcard.address);
-//            card.setNation(LDAPI.idcard.nation);
-//            card.setYear(LDAPI.idcard.birthday.substring(0, 4));
-//            card.setMonth(LDAPI.idcard.birthday.substring(4, 6));
-//            card.setDay(LDAPI.idcard.birthday.substring(6, 8));
+            card.setSex(LDAPI.idcard.sex);
+            card.setAddr(LDAPI.idcard.address);
+            card.setNation(LDAPI.idcard.nation);
+            card.setYear(LDAPI.idcard.birthday.substring(0, 4));
+            card.setMonth(LDAPI.idcard.birthday.substring(4, 6));
+            card.setDay(LDAPI.idcard.birthday.substring(6, 8));
             card.setIdcardno(LDAPI.idcard.idcardno);
             card.setPhotoBmp(ZAZAPI.getPhotoBmp());
             onIdReadCallback.onRead(card);
@@ -182,13 +159,13 @@ public class LdIdReader implements IidReader {
 
         readFlag = true;
 //        cardHandler.removeCallbacks(cardTasks);
-//        if (ZAZAPI != null) {
-//            if (ZAZAPI.CloseIDCardDevice(null)) {
-//                return ZAZAPI.card_power_off();
-//            } else {
-//                return 0;
-//            }
-//        }
+        if (ZAZAPI != null) {
+            if (ZAZAPI.CloseIDCardDevice(null)) {
+                return ZAZAPI.card_power_off();
+            } else {
+                return 0;
+            }
+        }
         return 0;
     }
 

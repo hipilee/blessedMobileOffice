@@ -20,7 +20,8 @@ public class TypeConstant {
     public static final int TYPE_PHYSICAL_EXAM_SUBMIT_XJ = 6;
     //体检完成后，献浆员打指纹后医生打指纹
     public static final int TYPE_PHYSICAL_EXAM_SUBMIT_DOC = 7;
-
+//
+    public static final int TYPE_SELECT_MACHINE = 8;
 
 
     //登记完成

@@ -14,7 +14,9 @@ import android.widget.TextView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.sensor.FingerprintActivity;
 import com.jiaying.workstation.adapter.PlasmaMachineSelectAdapter;
+import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
 import com.jiaying.workstation.utils.SetTopView;
 
@@ -42,7 +44,9 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent it = new Intent(SelectPlasmaMachineActivity.this,SelectPlasmaMachineResultActivity.class);
+                Intent it = new Intent(SelectPlasmaMachineActivity.this,FingerprintActivity.class);
+                it.putExtra("source", TypeConstant.TYPE_SELECT_MACHINE);
+
                 startActivity(it);
                 finish();
             }

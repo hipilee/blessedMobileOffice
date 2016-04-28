@@ -10,12 +10,15 @@ import android.widget.TextView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
+import com.jiaying.workstation.activity.plasmacollection.ShowDonorInfoActivity;
 import com.jiaying.workstation.activity.search.SearchResultActivity;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.engine.LdIdReader;
 import com.jiaying.workstation.engine.ProxyIdReader;
 import com.jiaying.workstation.entity.IdentityCardEntity;
+import com.jiaying.workstation.fragment.BloodPlasmaCollectionFragment;
 import com.jiaying.workstation.interfaces.IidReader;
 import com.jiaying.workstation.utils.CountDownTimerUtil;
 import com.jiaying.workstation.utils.MyLog;
@@ -95,7 +98,6 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
                     countDownTimerUtil.cancel();
                 }
             });
-            MyLog.e(TAG, "card info:" + identityCardEntity.toString());
 
             donorName = identityCardEntity.getName();
             avtar = identityCardEntity.getPhotoBmp();
@@ -111,23 +113,19 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     private class runnable implements Runnable {
         @Override
         public void run() {
-            Intent it = null;
-            int type = getIntent().getIntExtra(IntentExtra.EXTRA_TYPE, 0);
-            if (type == TypeConstant.TYPE_SEARCH) {
-                //查询的跳到查询结果
-                it = new Intent(IdentityCardActivity.this, SearchResultActivity.class);
-            } else {
-                //其他情况，到指纹
-                it = new Intent(IdentityCardActivity.this, FingerprintActivity.class);
-                it.putExtra(IntentExtra.EXTRA_TYPE, getIntent().getIntExtra(IntentExtra.EXTRA_TYPE, 0));
-                it.putExtra("donorName", donorName);
-                it.putExtra("avatar", avtar);
-                it.putExtra("idCardNO", idCardNO);
-                it.putExtra("source", TypeConstant.TYPE_REG);
-            }
-            startActivity(it);
-            finish();
+            goToSelectionMachine();
         }
+    }
+
+    private void goToSelectionMachine() {
+        Intent it;
+        it = new Intent(IdentityCardActivity.this, ShowDonorInfoActivity.class);
+        it.putExtra("donorName", donorName);
+        it.putExtra("avatar", avtar);
+        it.putExtra("idCardNO", idCardNO);
+
+        startActivity(it);
+        finish();
     }
 
     @Override

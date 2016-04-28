@@ -12,6 +12,7 @@ import com.jiaying.workstation.fragment.DispatchFragment;
 import com.jiaying.workstation.fragment.PhysicalExamFragment;
 import com.jiaying.workstation.fragment.RegisterFragment;
 import com.jiaying.workstation.fragment.SearchFragment;
+import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
 
 /**
  * 主界面包括（建档，登记，体检，采浆，调度四大部分；以及一个查询）
@@ -24,22 +25,18 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, new SearchFragment()).commit();
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, new BloodPlasmaCollectionFragment()).commit();
     }
 
     @Override
     public void initView() {
         setContentView(R.layout.activity_main);
-        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-//        if(actionBar != null) {
-//            actionBar.setDisplayHomeAsUpEnabled(true);
-//            actionBar.setTitle(R.string.app_name);
-//        }
+
         mGroup = (RadioGroup) findViewById(R.id.group);
         mGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
+                switch (checkedId) {
                     case R.id.btn_1:
 
                         break;
@@ -75,6 +72,13 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initVariables() {
+        //连服务器
+        connectTcpIpServer();
+    }
+
+    private void connectTcpIpServer() {
+        ObservableZXDCSignalListenerThread observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
+        observableZXDCSignalListenerThread.start();
     }
 
 }

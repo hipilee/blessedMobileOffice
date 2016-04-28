@@ -2,6 +2,8 @@ package com.jiaying.workstation.entity;
 
 import android.graphics.Bitmap;
 
+import com.jiaying.workstation.activity.sensor.IdentityCardActivity;
+
 import java.io.Serializable;
 
 /**
@@ -20,6 +22,17 @@ public class IdentityCardEntity implements Serializable {
     private String idcardno;
     private String grantdept;
     private Bitmap photoBmp;
+    private IdentityCardEntity(){}
+    private static IdentityCardEntity identityCardEntity=null;
+    public synchronized static IdentityCardEntity getIntance(){
+        if(identityCardEntity != null){
+            return identityCardEntity;
+        }
+        else{
+            identityCardEntity = new IdentityCardEntity();
+            return identityCardEntity;
+        }
+    }
 
     public String getName() {
         return name;

@@ -54,9 +54,9 @@ public class PlasmaMachineSelectAdapter extends BaseAdapter {
         }
         holder.num_txt.setText(mList.get(position).getId());
         if(mList.get(position).isCheck()){
-            holder.num_txt.setBackgroundColor(mContext.getResources().getColor(R.color.red));
-        }else{
             holder.num_txt.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+        }else{
+            holder.num_txt.setBackgroundColor(mContext.getResources().getColor(R.color.red));
         }
         return convertView;
     }

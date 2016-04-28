@@ -28,9 +28,7 @@ public class CountDownTimerUtil {
     }
 
     public static CountDownTimerUtil getInstance(TextView textView, Context context) {
-        if (countDownTimerUtil == null) {
-            countDownTimerUtil = new CountDownTimerUtil(textView, context);
-        }
+        countDownTimerUtil = new CountDownTimerUtil(textView, context);
         return countDownTimerUtil;
     }
 

@@ -36,7 +36,7 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
 
 	private Boolean isContinue = true;
 	private String ap = "libo";
-	private String org = "jiaying";
+	private String org = "*";
 //	private RecordState recordState;
 //	private RecoverState recoverState;
 //	private FilterSignal filterSignal;
@@ -87,8 +87,8 @@ public ObservableZXDCSignalListenerThread() {
 		clientService = DataCenterClientService.get(ap, org);
 		if (clientService == null) {
 			DataCenterClientConfig config = new DataCenterClientConfig();
-			config.setAddr("jiaying.picp.net");
-			config.setPort(30014);
+			config.setAddr("192.168.0.94");
+			config.setPort(10014);
 			config.setAp(ap);
 			config.setOrg(org);
 			config.setPassword("123456");

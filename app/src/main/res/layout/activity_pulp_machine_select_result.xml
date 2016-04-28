@@ -59,7 +59,7 @@
 
         <TextView
             style="@style/txt_blue_style"
-            android:text="请到1号浆机" />
+            android:text="请到2号浆机" />
 
         <TextView
             android:id="@+id/time_txt"

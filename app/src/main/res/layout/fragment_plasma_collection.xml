@@ -20,7 +20,7 @@
             android:layout_weight="0.191" />
 
         <Button
-            android:id="@+id/pulp_btn"
+            android:id="@+id/btn_collection"
             style="@style/btn_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
