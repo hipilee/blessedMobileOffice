@@ -209,6 +209,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
                 it = new Intent(FingerprintActivity.this, PhysicalExamResultActivity.class);
             } else if(type == TypeConstant.TYPE_SELECT_MACHINE){
                 it = new Intent(FingerprintActivity.this,SelectPlasmaMachineResultActivity.class);
+                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE,getIntent().getSerializableExtra(IntentExtra.EXTRA_PLASMAMACHINE));
             }
             else {
                 //其他的情况
@@ -225,6 +226,8 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     protected void onPause() {
         super.onPause();
 //        closeFingerReader();
+        proxyFingerprintReader.close();
+
     }
 
     @Override

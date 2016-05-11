@@ -58,8 +58,6 @@ public class CountDownTimerUtil {
             public void onFinish() {
                 textView.setText("");
                 countDownTimerUtil = null;
-//                Toast.makeText(context, R.string.identify_time_out, Toast.LENGTH_SHORT).show();
-//                ((Activity) context).finish();
                 onCountDownTimerFinishCallback.onFinish();
             }
         };

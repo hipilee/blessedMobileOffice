@@ -9,6 +9,10 @@ public class IntentExtra {
 
     //标识是登记，献浆，跳转到指纹，身份证，等
     public static final String EXTRA_TYPE = "extra_type";
+
     //标识调度状态
     public static final String EXTRA_STATE = "extra_state";
+
+    //采浆机
+    public static final String EXTRA_PLASMAMACHINE = "extra_plasmamachine";
 }

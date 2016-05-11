@@ -61,14 +61,20 @@ public class LdFingerprintReader implements IfingerprintReader {
 
     public LdFingerprintReader(Activity mActivity) {
         this.mActivity = mActivity;
-        usborcomtype = 0;
+        usborcomtype = 1;
         defDeviceType = 2;
         defiCom = 3;
         defiBaud = 12;
-//        thread = new HandlerThread("MyHandlerThread");
-//        thread.start();
-//        objHandler_fp = new Handler(thread.getLooper());//
-        objHandler_fp = new Handler();//
+//******在主线程中执行读取指纹操作
+        thread = new HandlerThread("MyHandlerThread");
+        thread.start();
+        objHandler_fp = new Handler(thread.getLooper());
+//******在主线程中执行读取指纹操作
+
+//********在主线程中执行读取指纹操作
+//        objHandler_fp = new Handler();
+//********在主线程中执行读取指纹操作
+
         za_finger = new ZA_finger();
     }
 
@@ -77,9 +83,8 @@ public class LdFingerprintReader implements IfingerprintReader {
 
         return ldFingerprintReader;
     }
+
     //打开设备
-
-
     @Override
     public int open() {
 
@@ -88,11 +93,9 @@ public class LdFingerprintReader implements IfingerprintReader {
         int status = 0;
         if (1 == usborcomtype) {
             LongDunD8800_CheckEuq();
-            //status = a6.ZAZOpenDeviceEx(-1, 5, 3, 12, 0, 0);
             status = a6.ZAZOpenDeviceEx(-1, defDeviceType, defiCom, defiBaud, 0, 0);
         } else {
             int fd = getrwusbdevices();
-            Log.e(TAG, "zhw === open fd: " + fd);
             status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
         }
         return status;
@@ -101,7 +104,6 @@ public class LdFingerprintReader implements IfingerprintReader {
     @Override
     public void read() {
 
-        // TODO Auto-generated method stub
         fpflag = true;
         fpcharflag = true;
         fpmatchflag = true;
@@ -126,7 +128,6 @@ public class LdFingerprintReader implements IfingerprintReader {
             timecount = (ssend - ssart);
             if (fpflag) return;
             if (timecount > Constants.COUNT_DOWN_TIME) {
-                temp = "读指纹等待超时" + "\r\n";
                 return;
             }
             int nRet = 0;
@@ -137,30 +138,23 @@ public class LdFingerprintReader implements IfingerprintReader {
                 a6.ZAZUpImage(DEV_ADDR, Image, len);
                 String str = "/mnt/sdcard/test.bmp";
                 a6.ZAZImgData2BMP(Image, str);
-                temp = "获取图像成功";
 
                 Bitmap bmpDefaultPic;
                 bmpDefaultPic = BitmapFactory.decodeFile(str, null);
 
                 onFingerprintReadCallback.onFingerPrintInfo(bmpDefaultPic);
             } else if (nRet == a6.PS_NO_FINGER) {
-//                temp = "正在读取指纹中   剩余时间:" + ((Constants.COUNT_DOWN_TIME - (ssend - ssart))) / 1000 + "s";
-                temp = ((Constants.COUNT_DOWN_TIME - (ssend - ssart))) / 1000 + "";
-//                mtvMessage.setText(temp);
+
                 objHandler_fp.postDelayed(fpTasks, 100);
+
             } else if (nRet == a6.PS_GET_IMG_ERR) {
-                temp = "获取图像错误";
-                Log.d(TAG, temp + "2: " + nRet);
+
                 objHandler_fp.postDelayed(fpTasks, 100);
                 return;
             } else {
-                temp = "设备异常";
-                Log.d(TAG, temp + "2: " + nRet);
-//                mtvMessage.setText(temp);
                 onFingerprintReadCallback.onFingerPrintInfo(null);
                 return;
             }
-
         }
     };
 
@@ -243,8 +237,7 @@ public class LdFingerprintReader implements IfingerprintReader {
                     } else
                         Log.e(TAG, "UsbManager openDevice failed");
 
-                    mUsbManager
-                            .openDevice(device).close();
+                    mUsbManager.openDevice(device).close();
                 }
                 break;
             }
@@ -260,8 +253,7 @@ public class LdFingerprintReader implements IfingerprintReader {
         //a6.ZAZBT_rev(tmp, tmp.length);
         objHandler_fp.removeCallbacks(fpTasks);
         int status = a6.ZAZCloseDeviceEx();
-        Log.e(TAG, " close status: " + status);
-//        za_finger.finger_power_off();
+        za_finger.finger_power_off();
         return status;
     }
 

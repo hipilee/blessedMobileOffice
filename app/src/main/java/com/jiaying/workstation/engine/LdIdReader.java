@@ -27,7 +27,7 @@ public class LdIdReader implements IidReader {
     private LdIdReader(Activity activity) {
         ZAZAPI = new LDAPI(activity, 4, 1);
         readFlag = true;
-        readHandlerThread = new HandlerThread("readcard thread");
+        readHandlerThread = new HandlerThread("read card thread");
         readHandlerThread.start();
         cardHandler = new Handler(readHandlerThread.getLooper());
 //        cardHandler = new Handler();
@@ -129,7 +129,7 @@ public class LdIdReader implements IidReader {
                     break;
 
             }
-            cardHandler.postDelayed(cardTasks, 100);
+            cardHandler.postDelayed(cardTasks, 0);
 
         }
 
@@ -158,7 +158,7 @@ public class LdIdReader implements IidReader {
     public int close() {
 
         readFlag = true;
-//        cardHandler.removeCallbacks(cardTasks);
+        cardHandler.removeCallbacks(cardTasks);
         if (ZAZAPI != null) {
             if (ZAZAPI.CloseIDCardDevice(null)) {
                 return ZAZAPI.card_power_off();

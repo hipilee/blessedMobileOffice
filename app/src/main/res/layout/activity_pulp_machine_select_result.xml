@@ -49,23 +49,25 @@
 
 
     <LinearLayout
-        android:background="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="40dp"
+        android:background="@color/white"
         android:orientation="vertical"
-        android:padding="40dp">
+        android:padding="40dp"
+        android:visibility="invisible">
 
         <TextView
+            android:id="@+id/number_txt"
             style="@style/txt_blue_style"
             android:text="请到2号浆机" />
 
         <TextView
             android:id="@+id/time_txt"
+            style="@style/txt_black_style"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/btn_margin"
-            style="@style/txt_black_style"
             android:text="5" />
     </LinearLayout>
 </LinearLayout>

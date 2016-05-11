@@ -86,4 +86,10 @@ public class ShowDonorInfoActivity extends BaseActivity {
         ImageView imageView = (ImageView) this.findViewById(R.id.iv_head);
         imageView.setImageBitmap(identityCardEntity.getPhotoBmp());
     }
+
+    private void showAuthResultDialog() {
+
+    }
+
+
 }

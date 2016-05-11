@@ -16,6 +16,7 @@ import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
 import com.jiaying.workstation.activity.sensor.FingerprintActivity;
 import com.jiaying.workstation.adapter.PlasmaMachineSelectAdapter;
+import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
 import com.jiaying.workstation.utils.SetTopView;
@@ -46,7 +47,7 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent it = new Intent(SelectPlasmaMachineActivity.this,FingerprintActivity.class);
                 it.putExtra("source", TypeConstant.TYPE_SELECT_MACHINE);
-
+                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE,mList.get(position));
                 startActivity(it);
                 finish();
             }
@@ -55,15 +56,16 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
         mAdapter = new PlasmaMachineSelectAdapter(mList, this);
         mGridView.setAdapter(mAdapter);
 
-        for (int i = 1; i < 3; i++) {
+        for (int i = 10001; i <=10006; i++) {
             PlasmaMachineEntity machine = new PlasmaMachineEntity();
-            if (i % 2 == 0) {
-                machine.setCheck(true);
-            } else {
-                machine.setCheck(false);
-            }
-            machine.setId(i + "");
-            machine.setNumber(i + "号");
+            machine.setCheck(true);
+//            if (i % 2 == 0) {
+//                machine.setCheck(true);
+//            } else {
+//                machine.setCheck(false);
+//            }
+            machine.setId(String.valueOf(i));
+            machine.setNumber(String.valueOf(i));
             mList.add(machine);
         }
         mAdapter.notifyDataSetChanged();
