@@ -18,25 +18,16 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|bottom"
+                android:layout_marginTop="20dp"
                 android:background="@mipmap/idcard_background"
                 android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_margin="20dp"
-                    android:background="@color/main_color"
-                    android:gravity="center"
-                    android:text="今日可献浆"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_big" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -158,17 +149,16 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/btn_sure"
+                style="@style/btn_style"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|bottom"
+                android:layout_margin="10dp"
+                android:text="确定" />
         </LinearLayout>
 
-
-        <Button
-            android:id="@+id/btn_sure"
-            style="@style/btn_style"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_margin="10dp"
-            android:text="确定" />
 
     </LinearLayout>
 </ScrollView>

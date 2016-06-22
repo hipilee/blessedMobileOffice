@@ -34,7 +34,7 @@ public class CountDownTimerUtil {
 
     //默认20s倒计时
     public void start() {
-        countDownTimer = new CountDownTimer(Constants.COUNT_DOWN_TIME, 1000) {
+        countDownTimer = new CountDownTimer(Constants.COUNT_DOWN_TIME_20S, 1000) {
             public void onTick(long millisUntilFinished) {
                 textView.setText("" + millisUntilFinished / 1000);
             }

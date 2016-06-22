@@ -36,7 +36,6 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
     }
 
 
-
     @Override
     public void initView() {
         setContentView(R.layout.activity_pulp_machine_select);
@@ -45,9 +44,12 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent it = new Intent(SelectPlasmaMachineActivity.this,FingerprintActivity.class);
+                Intent it = new Intent(SelectPlasmaMachineActivity.this, FingerprintActivity.class);
+
                 it.putExtra("source", TypeConstant.TYPE_SELECT_MACHINE);
-                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE,mList.get(position));
+                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, mList.get(position));
+                it = new Intent(SelectPlasmaMachineActivity.this, SelectPlasmaMachineResultActivity.class);
+                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, mList.get(position));
                 startActivity(it);
                 finish();
             }
@@ -56,7 +58,7 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
         mAdapter = new PlasmaMachineSelectAdapter(mList, this);
         mGridView.setAdapter(mAdapter);
 
-        for (int i = 10001; i <=10006; i++) {
+        for (int i = 10001; i <= 10006; i++) {
             PlasmaMachineEntity machine = new PlasmaMachineEntity();
             machine.setCheck(true);
 //            if (i % 2 == 0) {

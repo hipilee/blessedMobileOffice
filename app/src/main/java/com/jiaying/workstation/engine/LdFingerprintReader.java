@@ -14,7 +14,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.jiaying.workstation.constant.Constants;
 import com.jiaying.workstation.interfaces.IfingerprintReader;
@@ -66,13 +65,13 @@ public class LdFingerprintReader implements IfingerprintReader {
         defiCom = 3;
         defiBaud = 12;
 //******在主线程中执行读取指纹操作
-        thread = new HandlerThread("MyHandlerThread");
-        thread.start();
-        objHandler_fp = new Handler(thread.getLooper());
+//        thread = new HandlerThread("MyHandlerThread");
+//        thread.start();
+//        objHandler_fp = new Handler(thread.getLooper());
 //******在主线程中执行读取指纹操作
 
 //********在主线程中执行读取指纹操作
-//        objHandler_fp = new Handler();
+        objHandler_fp = new Handler();
 //********在主线程中执行读取指纹操作
 
         za_finger = new ZA_finger();
@@ -127,7 +126,7 @@ public class LdFingerprintReader implements IfingerprintReader {
             ssend = System.currentTimeMillis();
             timecount = (ssend - ssart);
             if (fpflag) return;
-            if (timecount > Constants.COUNT_DOWN_TIME) {
+            if (timecount > Constants.COUNT_DOWN_TIME_20S) {
                 return;
             }
             int nRet = 0;

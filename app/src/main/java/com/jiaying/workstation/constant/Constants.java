@@ -12,5 +12,5 @@ public class Constants {
     //倒计时时间10s
     public static final int COUNT_DOWN_TIME_10S = 11000;
     //倒计时时间20s
-    public static final int COUNT_DOWN_TIME = 21000;
+    public static final int COUNT_DOWN_TIME_20S = 21000;
 }

@@ -45,10 +45,10 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
     private TextView nameTextView = null;
     private TextView idCardNoTextView = null;
     private ImageView avaterImageView = null;
-    private ProgressDialog allocDevDialog;
-    private AlertDialog.Builder failAllocDialogBuilder, succAllocDialogBuilder;
-    private AlertDialog failAllocDialog, succAllocDialog;
-
+    private ProgressDialog allocDevDialog = null;
+    //    private AlertDialog.Builder failAllocDialogBuilder, succAllocDialogBuilder;
+    private AlertDialog failAllocDialog = null;
+    private AlertDialog succAllocDialog = null;
     private IdentityCardEntity identityCardEntity;
     private PlasmaMachineEntity plasmaMachineEntity;
     private ResponseHandler responseHandler;
@@ -72,9 +72,14 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         identityCardEntity = IdentityCardEntity.getIntance();
         plasmaMachineEntity = (PlasmaMachineEntity) getIntent().getSerializableExtra(IntentExtra.EXTRA_PLASMAMACHINE);
 
+
+        resContext = new ResContext();
+        resContext.open();
+
         responseHandler = new ResponseHandler();
         ObservableZXDCSignalListenerThread.addObserver(responseHandler);
 
+        //收到信息的各种状态
         nullRes = new NullRes();
         serRes = new SerRes();
         zxdcRes = new ZxdcRes();
@@ -82,11 +87,10 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         serAndZxdcRes = new SerAndZxdcRes();
         serAndTablet = new SerAndTablet();
         tabletAndZxdc = new TabletAndZxdc();
-        resContext = new ResContext();
 
         resContext.setCurState(nullRes);
 
-        sendToTcpIpServer();
+        allocateDev();
     }
 
     @Override
@@ -120,19 +124,15 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
 
     }
 
-
     @Override
     public void onFinish() {
-        MyLog.e(TAG, "超时开始");
-        MyLog.e(TAG, "" + allocDevDialog.toString());
-        allocDevDialog.dismiss();
-        allocDevDialog.cancel();
+        disAllocDevDialog();
+        resContext.close();
         showFailDialog("设备分配失败", "分配超时");
-        MyLog.e(TAG, "超时结束");
     }
 
     //将浆员信息发送到服务器
-    private void sendToTcpIpServer() {
+    private void allocateDev() {
         DataCenterClientService clientService = ObservableZXDCSignalListenerThread.getClientService();
         if (clientService != null) {
             DataCenterTaskCmd retcmd = new DataCenterTaskCmd();
@@ -168,8 +168,12 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
 
     /*分配设备超时后的对话框*/
     private void showFailDialog(String title, String msg) {
+
+        if (isFinishing()) {
+            return;
+        }
         //AlertDialog.Builder normalDialog=new AlertDialog.Builder(getApplicationContext());
-        failAllocDialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder failAllocDialogBuilder = new AlertDialog.Builder(this);
         failAllocDialogBuilder.setIcon(R.mipmap.ic_launcher);
         failAllocDialogBuilder.setTitle(title);
         failAllocDialogBuilder.setMessage(msg);
@@ -180,18 +184,19 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
             public void onClick(DialogInterface dialog, int which) {
 
                 //让失败对话框消失
-                failAllocDialog.dismiss();
+                dialog.dismiss();
 
                 //重新开始倒计时
                 countDownTimerUtil = CountDownTimerUtil.getInstance(time_txt, SelectPlasmaMachineResultActivity.this);
                 countDownTimerUtil.setOnCountDownTimerFinishCallback(SelectPlasmaMachineResultActivity.this);
-                countDownTimerUtil.start(Constants.COUNT_DOWN_TIME_10S);
+                countDownTimerUtil.start(Constants.COUNT_DOWN_TIME_20S);
 
+                resContext.open();
                 //重新设置当前状态为空
                 resContext.setCurState(nullRes);
 
                 //再次发送讲员信息命令
-                sendToTcpIpServer();
+                allocateDev();
 
                 //显示分配进度对话框
                 showProgress("设备分配中", "服务器（**）\n多媒体平板（**）\n单采机（**）");
@@ -201,19 +206,26 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         failAllocDialogBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                countDownTimerUtil.cancel();
                 finish();
                 Log.e("showFailDialog", "放弃");
             }
         });
-        failAllocDialog = failAllocDialogBuilder.create();
+        if (failAllocDialog == null) {
+            failAllocDialog = failAllocDialogBuilder.create();
+        }
+        failAllocDialog.setCancelable(false);
         failAllocDialog.setCanceledOnTouchOutside(false);
         failAllocDialog.show();
     }
 
     /*分配设备成功后的对话框*/
     private void showSuccesslDialog(String title, String msg) {
+        if (isFinishing()) {
+            return;
+        }
         //AlertDialog.Builder normalDialog=new AlertDialog.Builder(getApplicationContext());
-        succAllocDialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder succAllocDialogBuilder = new AlertDialog.Builder(this);
         succAllocDialogBuilder.setIcon(R.mipmap.ic_launcher);
         succAllocDialogBuilder.setTitle(title);
         succAllocDialogBuilder.setMessage(msg);
@@ -226,39 +238,38 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
             }
         });
 
-        succAllocDialog = succAllocDialogBuilder.create();
+        if (succAllocDialog == null) {
+            succAllocDialog = succAllocDialogBuilder.create();
+        }
+
         succAllocDialog.setCanceledOnTouchOutside(false);
         succAllocDialog.setCancelable(false);
         succAllocDialog.show();
     }
 
     private void showProgress(String title, String msg) {
-        allocDevDialog = new ProgressDialog(this);
-        //实例化
+        if (isFinishing()) {
+            return;
+        }
+        if (allocDevDialog == null) {
+            allocDevDialog = new ProgressDialog(this);
+        }
         allocDevDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        //设置进度条风格，风格为圆形，旋转的
         allocDevDialog.setTitle(title);
-        //设置ProgressDialog 标题
         allocDevDialog.setMessage(msg);
-        //设置ProgressDialog 提示信息
         allocDevDialog.setIcon(R.mipmap.ic_launcher);
-        //设置ProgressDialog 标题图标
         allocDevDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 countDownTimerUtil.cancel();
                 finish();
-                Log.e("showFailDialog", "放弃");
             }
         });
 
 //        设置点击进度对话框外的区域对话框不消失
         allocDevDialog.setCanceledOnTouchOutside(false);
-        //设置ProgressDialog 的一个Button
         allocDevDialog.setIndeterminate(false);
-        //设置ProgressDialog 的进度条是否不明确
         allocDevDialog.setCancelable(false);
-        //设置ProgressDialog 是否可以按退回按键取消
         allocDevDialog.show();
     }
 
@@ -269,7 +280,11 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
             //有些消息的msg.obj是null需要处理
             msg.obj = (msg.obj == null) ? (Res.NOTHING) : (msg.obj);
             switch ((Res) msg.obj) {
-                case SERVERRES:
+                case SERVERRES_PASS:
+                    resContext.handle((Res) msg.obj);
+                    break;
+
+                case SERVERRES_NOT_PASS:
                     resContext.handle((Res) msg.obj);
                     break;
 
@@ -297,12 +312,24 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
     private class ResContext {
         private State state;
 
+        private Boolean isOpen = true;
+
+        public synchronized void open() {
+            this.isOpen = true;
+        }
+
+        public synchronized void close() {
+            this.isOpen = false;
+        }
+
         public void setCurState(State state) {
             this.state = state;
         }
 
         private synchronized void handle(Res res) {
-            state.handle(res);
+            if (isOpen) {
+                state.handle(res);
+            }
         }
     }
 
@@ -316,17 +343,22 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         void handle(Res res) {
             switch (res) {
 
-                case SERVERRES:
+                case SERVERRES_PASS:
                     resContext.setCurState(serRes);
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（**）\n单采机（**）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（**）\n单采机（**）");
+                    break;
+                case SERVERRES_NOT_PASS:
+                    showFailDialog("设备分配失败", "今日不可献浆");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
                     break;
                 case TABLETRES:
                     resContext.setCurState(tabletRes);
-                    allocDevDialog.setMessage("服务器（**）\n多媒体平板（应答）\n单采机（**）");
+                    showProgress("设备分配中", "服务器（**）\n多媒体平板（应答）\n单采机（**）");
                     break;
                 case ZXDCRES:
                     resContext.setCurState(zxdcRes);
-                    allocDevDialog.setMessage("服务器（**）\n多媒体平板（**）\n单采机（应答）");
+                    showProgress("", "服务器（**）\n多媒体平板（**）\n单采机（应答）");
                     break;
             }
         }
@@ -340,11 +372,11 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
 
                 case TABLETRES:
                     resContext.setCurState(serAndTablet);
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（应答）\n单采机（**）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（应答）\n单采机（**）");
                     break;
                 case ZXDCRES:
                     resContext.setCurState(serAndZxdcRes);
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（**）\n单采机（应答）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（**）\n单采机（应答）");
                     break;
             }
 
@@ -356,13 +388,18 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         @Override
         void handle(Res res) {
             switch (res) {
-                case SERVERRES:
+                case SERVERRES_PASS:
                     resContext.setCurState(serAndZxdcRes);
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（**）\n单采机（应答）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（**）\n单采机（应答）");
+                    break;
+                case SERVERRES_NOT_PASS:
+                    showFailDialog("设备分配失败", "今日不可献浆");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
                     break;
                 case TABLETRES:
                     resContext.setCurState(tabletAndZxdc);
-                    allocDevDialog.setMessage("服务器（**）\n多媒体平板（应答）\n单采机（应答）");
+                    showProgress("设备分配中", "服务器（**）\n多媒体平板（应答）\n单采机（应答）");
                     break;
             }
         }
@@ -373,13 +410,18 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         @Override
         void handle(Res res) {
             switch (res) {
-                case SERVERRES:
+                case SERVERRES_PASS:
                     resContext.setCurState(serAndTablet);
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（应答）\n单采机（**）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（应答）\n单采机（**）");
+                    break;
+                case SERVERRES_NOT_PASS:
+                    showFailDialog("设备分配失败", "今日不可献浆");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
                     break;
                 case ZXDCRES:
                     resContext.setCurState(tabletAndZxdc);
-                    allocDevDialog.setMessage("服务器（**）\n多媒体平板（应答）\n单采机（应答）");
+                    showProgress("设备分配中", "服务器（**）\n多媒体平板（应答）\n单采机（应答）");
                     break;
             }
         }
@@ -391,10 +433,10 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         void handle(Res res) {
             switch (res) {
                 case TABLETRES:
-                    countDownTimerUtil.cancel();
-                    allocDevDialog.dismiss();
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（应答）\n单采机（应答）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（应答）\n单采机（应答）");
                     showSuccesslDialog("设备分配成功", "请到" + plasmaMachineEntity.getId() + "号浆机！");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
                     break;
 
             }
@@ -408,10 +450,10 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         void handle(Res res) {
             switch (res) {
                 case ZXDCRES:
-                    countDownTimerUtil.cancel();
-                    allocDevDialog.dismiss();
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（应答）\n单采机（应答）");
+                    showProgress("设备分配中", "服务器（应答）\n多媒体平板（应答）\n单采机（应答）");
                     showSuccesslDialog("设备分配成功", "请到" + plasmaMachineEntity.getId() + "号浆机！");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
                     break;
 
             }
@@ -424,15 +466,30 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         @Override
         void handle(Res res) {
             switch (res) {
-                case SERVERRES:
-                    countDownTimerUtil.cancel();
-                    allocDevDialog.dismiss();
-                    allocDevDialog.setMessage("服务器（应答）\n多媒体平板（应答）\n单采机（应答）");
+                case SERVERRES_PASS:
+                    showProgress("设备分配", "服务器（应答）\n多媒体平板（应答）\n单采机（应答）");
                     showSuccesslDialog("设备分配成功", "请到" + plasmaMachineEntity.getId() + "号浆机！");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
+                    break;
+
+                case SERVERRES_NOT_PASS:
+                    showFailDialog("设备分配失败", "今日不可献浆");
+                    countDownTimerUtil.cancel();
+                    disAllocDevDialog();
                     break;
 
             }
         }
     }
 
+    //关闭分配中对话框
+    private void disAllocDevDialog() {
+        if (!isFinishing()) {
+            if (allocDevDialog != null) {
+                allocDevDialog.dismiss();
+                allocDevDialog = null;
+            }
+        }
+    }
 }

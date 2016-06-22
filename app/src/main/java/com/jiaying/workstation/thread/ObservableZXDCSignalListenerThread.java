@@ -1,7 +1,6 @@
 package com.jiaying.workstation.thread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -33,7 +32,7 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
     private static ObservableHint observableHint;
 
     private Boolean isContinue = true;
-    private String ap = "libo";
+    private String ap = "libo2";
     private String org = "*";
 //	private RecordState recordState;
 //	private RecoverState recoverState;
@@ -83,7 +82,7 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
         clientService = DataCenterClientService.get(ap, org);
         if (clientService == null) {
             DataCenterClientConfig config = new DataCenterClientConfig();
-            config.setAddr("192.168.0.94");
+            config.setAddr("111.9.45.67");
             config.setPort(10014);
             config.setAp(ap);
             config.setOrg(org);
@@ -203,8 +202,14 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
     @Override
     public void processResponseMsg(DataCenterRun dataCenterRun, DataCenterTaskCmd dataCenterTaskCmd, DataCenterTaskCmd dataCenterTaskCmd1) throws DataCenterException {
         Log.e("processResponseMsg", "dataCenterTaskCmd: " + dataCenterTaskCmd.getCmd() + " " + "dataCenterTaskCmd1: " + dataCenterTaskCmd1.getCmd());
+        DataCenterTaskCmd c = dataCenterTaskCmd;
+        String s = textUnit.ObjToString(dataCenterTaskCmd.getValue("result"));
         if ("confirm_donor".equals(dataCenterTaskCmd1.getCmd())) {
-            notifyObservers(Res.SERVERRES);
+            if (!"failure".equals(textUnit.ObjToString(dataCenterTaskCmd.getValue("result")))) {
+                notifyObservers(Res.SERVERRES_PASS);
+            } else {
+                notifyObservers(Res.SERVERRES_NOT_PASS);
+            }
         }
     }
 
