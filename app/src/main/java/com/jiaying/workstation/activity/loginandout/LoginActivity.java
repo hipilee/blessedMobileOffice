@@ -2,20 +2,25 @@ package com.jiaying.workstation.activity.loginandout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.alibaba.fastjson.JSON;
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
 import com.jiaying.workstation.activity.ServerSettingActivity;
-import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
 import com.jiaying.workstation.activity.sensor.FingerprintActivity;
 import com.jiaying.workstation.adapter.NurseAdapter;
 import com.jiaying.workstation.entity.NurseEntity;
+import com.jiaying.workstation.utils.ApiClient;
 import com.jiaying.workstation.utils.DealFlag;
+import com.jiaying.workstation.utils.MyLog;
 import com.jiaying.workstation.utils.SetTopView;
+import com.jiaying.workstation.utils.ToastUtils;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +29,7 @@ import java.util.List;
  * 护士分配浆机
  */
 public class LoginActivity extends BaseActivity {
+    private static final String TAG = "LoginActivity";
     private GridView mGridView;
     private NurseAdapter mAdapter;
     private List<NurseEntity> mList;
@@ -85,7 +91,27 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void loadData() {
+        ApiClient.get("users/", new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
+                if(bytes!=null && bytes.length > 0){
+                    String result = new String(bytes);
+                    MyLog.e(TAG,"users result:"+ result);
+                    if(!TextUtils.isEmpty(result)){
+                        List<NurseEntity> nurseEntityList = JSON.parseArray(result,NurseEntity.class);
+                        if(nurseEntityList !=null){
+                            mList.addAll(nurseEntityList);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
 
+            @Override
+            public void onFailure(int i, org.apache.http.Header[] headers, byte[] bytes, Throwable throwable) {
+                ToastUtils.showToast(LoginActivity.this,R.string.http_req_fail);
+            }
+        });
     }
 
     @Override
