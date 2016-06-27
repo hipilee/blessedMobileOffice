@@ -13,7 +13,7 @@ import com.loopj.android.http.RequestParams;
  */
 public class ApiClient {
     private static AsyncHttpClient client = new AsyncHttpClient();    //实例话对象
-    private static final String API_SERVER = "http://111.9.45.67:8989/api/";
+    private static final String API_SERVER = "http://jiaying.picp.net:8989/api/";
     static {
         client.setTimeout(10000);   //设置链接超时，如果不设置，默认为10s
     }

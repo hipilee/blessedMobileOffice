@@ -2,6 +2,7 @@ package com.jiaying.workstation.activity.loginandout;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,6 +23,7 @@ import com.jiaying.workstation.utils.SetTopView;
 import com.jiaying.workstation.utils.ToastUtils;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +31,16 @@ import java.util.List;
  * 护士分配浆机
  */
 public class LoginActivity extends BaseActivity {
+
     private static final String TAG = "LoginActivity";
+
     private GridView mGridView;
     private NurseAdapter mAdapter;
     private List<NurseEntity> mList;
     private DealFlag login_deal_flag;
+
     private ImageView iv_logo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +56,7 @@ public class LoginActivity extends BaseActivity {
     public void initView() {
         setContentView(R.layout.activity_login);
         new SetTopView(this, R.string.title_activity_pulp_machine_for_nurse, false);
+
         iv_logo = (ImageView) findViewById(R.id.iv_logo);
         iv_logo.setEnabled(true);
         iv_logo.setOnLongClickListener(new View.OnLongClickListener() {
@@ -60,6 +67,7 @@ public class LoginActivity extends BaseActivity {
                 return false;
             }
         });
+
         mGridView = (GridView) findViewById(R.id.gridview);
         mList = new ArrayList<NurseEntity>();
         mAdapter = new NurseAdapter(mList, this);
@@ -77,13 +85,14 @@ public class LoginActivity extends BaseActivity {
         });
         for (int i = 0; i < 10; i++) {
             NurseEntity nurseEntity = new NurseEntity();
-            nurseEntity.setName("护士" + i);
+            nurseEntity.setName("护士");
             nurseEntity.setId("1232" + i);
            if(i%2==1){
                nurseEntity.setPhoto("http://img2.imgtn.bdimg.com/it/u=4240359214,139934804&fm=21&gp=0.jpg");
            }else{
                nurseEntity.setPhoto("http://img2.imgtn.bdimg.com/it/u=918496586,990160806&fm=21&gp=0.jpg");
            }
+
             mList.add(nurseEntity);
         }
         mAdapter.notifyDataSetChanged();
@@ -91,6 +100,7 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void loadData() {
+
         ApiClient.get("users/", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
@@ -112,6 +122,7 @@ public class LoginActivity extends BaseActivity {
                 ToastUtils.showToast(LoginActivity.this,R.string.http_req_fail);
             }
         });
+
     }
 
     @Override

@@ -84,6 +84,8 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
         //统一关闭和服务器的连接，这样避免的问题是如果还是使用上一次使用的clientService
         //就会造成config.setProcess(this)中的this没有更新。
         DataCenterClientService.shutdown();
+        ap = DeviceEntity.getInstance().getAp();
+        org = DeviceEntity.getInstance().getOrg();
         clientService = DataCenterClientService.get(ap, org);
         if (clientService == null) {
             //填写配置
