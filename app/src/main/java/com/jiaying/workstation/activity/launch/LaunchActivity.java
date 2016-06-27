@@ -103,6 +103,4 @@ public class LaunchActivity extends Activity {
             LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
         }
     }
-
-
 }
