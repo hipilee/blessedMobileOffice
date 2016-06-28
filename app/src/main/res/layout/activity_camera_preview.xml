@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.sensor.FaceCollectionActivity">
+
+    <include layout="@layout/comm_app_title" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/sfvFrame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+        <ImageView
+            android:id="@+id/ivFinger"
+            android:layout_width="400px"
+            android:layout_height="500px"
+            android:layout_gravity="center" />
+
+
+        <SurfaceView
+            android:id="@+id/sfvAnimation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+
+</LinearLayout>
