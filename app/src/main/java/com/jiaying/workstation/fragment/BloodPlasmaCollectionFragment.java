@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.jiaying.workstation.R;
+import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
 import com.jiaying.workstation.activity.sensor.IdentityCardActivity;
 import com.jiaying.workstation.utils.DealFlag;
 
@@ -49,6 +50,7 @@ public class BloodPlasmaCollectionFragment extends Fragment {
         public void onClick(View v) {
             if (btn_collection_flag.isFirst()) {
                 Intent it = new Intent(getActivity(), IdentityCardActivity.class);
+                it = new Intent(getActivity(), SelectPlasmaMachineActivity.class);
                 startActivity(it);
             }
         }

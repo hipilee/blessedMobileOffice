@@ -57,6 +57,7 @@ public class LdFingerprintReader implements IfingerprintReader {
     private int defDeviceType;
     private int defiCom;
     private int defiBaud;
+    private String tag = "LdFingerprintReader";
 
     public LdFingerprintReader(Activity mActivity) {
         this.mActivity = mActivity;
@@ -65,13 +66,13 @@ public class LdFingerprintReader implements IfingerprintReader {
         defiCom = 3;
         defiBaud = 12;
 //******在主线程中执行读取指纹操作
-//        thread = new HandlerThread("MyHandlerThread");
-//        thread.start();
-//        objHandler_fp = new Handler(thread.getLooper());
+        thread = new HandlerThread("MyHandlerThread");
+        thread.start();
+        objHandler_fp = new Handler(thread.getLooper());
 //******在主线程中执行读取指纹操作
 
 //********在主线程中执行读取指纹操作
-        objHandler_fp = new Handler();
+//        objHandler_fp = new Handler();
 //********在主线程中执行读取指纹操作
 
         za_finger = new ZA_finger();
@@ -97,12 +98,13 @@ public class LdFingerprintReader implements IfingerprintReader {
             int fd = getrwusbdevices();
             status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
         }
+        Log.e(tag, "open()");
         return status;
     }
 
     @Override
     public void read() {
-
+        Log.e(tag, "read()");
         fpflag = true;
         fpcharflag = true;
         fpmatchflag = true;
@@ -130,6 +132,7 @@ public class LdFingerprintReader implements IfingerprintReader {
                 return;
             }
             int nRet = 0;
+            Log.e("error", " " + DEV_ADDR);
             nRet = a6.ZAZGetImage(DEV_ADDR);
             if (nRet == 0) {
                 int[] len = {0, 0};
@@ -248,6 +251,7 @@ public class LdFingerprintReader implements IfingerprintReader {
 
     @Override
     public int close() {
+        Log.e(tag, "close()-1");
         byte[] tmp = {5, 6, 7};
         //a6.ZAZBT_rev(tmp, tmp.length);
         objHandler_fp.removeCallbacks(fpTasks);

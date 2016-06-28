@@ -35,8 +35,8 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
     private static ObservableHint observableHint;
 
     private Boolean isContinue = true;
-    private String ap = "libo2";
-    private String org = "*";
+    private String ap = null;
+    private String org = null;
 //	private RecordState recordState;
 //	private RecoverState recoverState;
 //	private FilterSignal filterSignal;
@@ -65,10 +65,10 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
 
     public static void addObserver(Observer observer) {
         observableHint.addObserver(observer);
-        if(observableHint==null){
+        if (observableHint == null) {
             Log.e("camera", "observableHint==null");
         }
-        if(observer==null){
+        if (observer == null) {
             Log.e("camera", "observer==null");
         }
     }
@@ -94,18 +94,34 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
         DataCenterClientService.shutdown();
         ap = DeviceEntity.getInstance().getAp();
         org = DeviceEntity.getInstance().getOrg();
+        MyLog.e(TAG, ap + "");
+        MyLog.e(TAG, org + "");
+
         clientService = DataCenterClientService.get(ap, org);
         if (clientService == null) {
             //填写配置
             DataCenterClientConfig config = new DataCenterClientConfig();
             config.setAddr(SignalServer.getInstance().getIp());
+            MyLog.e(TAG, SignalServer.getInstance().getIp() + "");
+
             config.setPort(SignalServer.getInstance().getPort());
+            MyLog.e(TAG, SignalServer.getInstance().getPort() + "");
 
             config.setAp(DeviceEntity.getInstance().getAp());
+            MyLog.e(TAG, DeviceEntity.getInstance().getAp() + "");
+
             config.setOrg(DeviceEntity.getInstance().getOrg());
+            MyLog.e(TAG, DeviceEntity.getInstance().getOrg() + "");
+
             config.setPassword(DeviceEntity.getInstance().getPassword());
+            MyLog.e(TAG, DeviceEntity.getInstance().getPassword() + "");
+
             config.setServerAp(DeviceEntity.getInstance().getServerAp());
+            MyLog.e(TAG, DeviceEntity.getInstance().getServerAp() + "");
+
             config.setServerOrg(DeviceEntity.getInstance().getServerOrg());
+            MyLog.e(TAG, DeviceEntity.getInstance().getServerOrg() + "");
+
             config.setProcess(this);
 
 
@@ -213,7 +229,7 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
             notifyObservers(Res.ZXDCRES);
         } else if ("tablet_rev_confirm_donor".equals(cmd.getCmd())) {
             notifyObservers(Res.TABLETRES);
-        }else if("timestamp".equals(cmd.getCmd())){
+        } else if ("timestamp".equals(cmd.getCmd())) {
             ServerTime.curtime = Long.parseLong(textUnit.ObjToString(cmd.getValue("t")));
             notifyObservers(Res.TIMESTAMP);
         }

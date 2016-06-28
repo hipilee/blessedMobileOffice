@@ -78,10 +78,11 @@ public class LoginActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //选择护士后就指纹认证
                 if (login_deal_flag.isFirst()) {
-                    DataPreference preference = new DataPreference(LoginActivity.this);
-                    preference.writeStr("nurse_id",mList.get(position).getId());
+//                    DataPreference preference = new DataPreference(LoginActivity.this);
+//                    preference.writeStr("nurse_id",mList.get(position).getId());
                     Intent it = new Intent(LoginActivity.this, FingerprintActivity.class);
                     startActivity(it);
+                    LoginActivity.this.finish();
                 }
             }
         });
@@ -93,12 +94,12 @@ public class LoginActivity extends BaseActivity {
         ApiClient.get("users", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
-                if(bytes!=null && bytes.length > 0){
+                if (bytes != null && bytes.length > 0) {
                     String result = new String(bytes);
-                    MyLog.e(TAG,"users result:"+ result);
-                    if(!TextUtils.isEmpty(result)){
-                        List<NurseEntity> nurseEntityList = JSON.parseArray(result,NurseEntity.class);
-                        if(nurseEntityList !=null){
+                    MyLog.e(TAG, "users result:" + result);
+                    if (!TextUtils.isEmpty(result)) {
+                        List<NurseEntity> nurseEntityList = JSON.parseArray(result, NurseEntity.class);
+                        if (nurseEntityList != null) {
                             mList.addAll(nurseEntityList);
                             mAdapter.notifyDataSetChanged();
                         }
@@ -108,8 +109,8 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailure(int i, org.apache.http.Header[] headers, byte[] bytes, Throwable throwable) {
-                MyLog.e(TAG,"users result fail reason:"+ throwable.toString());
-                ToastUtils.showToast(LoginActivity.this,R.string.http_req_fail);
+                MyLog.e(TAG, "users result fail reason:" + throwable.toString());
+                ToastUtils.showToast(LoginActivity.this, R.string.http_req_fail);
             }
         });
 

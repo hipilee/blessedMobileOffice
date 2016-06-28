@@ -9,12 +9,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.softfan.dataCenter.DataCenterClientService;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.loginandout.LoginActivity;
 import com.jiaying.workstation.activity.plasmacollection.Res;
-import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
 import com.jiaying.workstation.activity.sensor.FingerprintActivity;
+import com.jiaying.workstation.activity.sensor.IdentityCardActivity;
 import com.jiaying.workstation.db.DataPreference;
 import com.jiaying.workstation.entity.DeviceEntity;
 import com.jiaying.workstation.entity.ServerTime;
@@ -39,28 +40,30 @@ public class LaunchActivity extends Activity {
     public static DataCenterClientService clientService = null;
 
 
-    private ResponseHandler responseHandler;
+    private TimeHandlerObserver timeHandlerObserver;
+    private ObservableZXDCSignalListenerThread observableZXDCSignalListenerThread;
     private ResContext resContext;
     private TimeRes timeRes;
-    private  static final int MSG_SYNC_TIME=1001;
-    private Handler mHandler = new Handler(){
+    private static final int MSG_SYNC_TIME = 1001;
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            MyLog.e(TAG,"sync time");
-            if(msg.what==MSG_SYNC_TIME){
+            MyLog.e(TAG, "sync time");
+            if (msg.what == MSG_SYNC_TIME) {
                 //连接服务器
                 connectTcpIpServer();
                 syncTime();
             }
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
         initDdataPreference();
-        autoWifiConnect();
+
     }
 
     private void initDdataPreference() {
@@ -76,6 +79,13 @@ public class LaunchActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        autoWifiConnect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
     }
 
     //自动连接wifi
@@ -87,19 +97,28 @@ public class LaunchActivity extends Activity {
 
     private void jumpToLoginActivity() {
         MyLog.e(TAG, "jumpToLoginActivity");
-        DataPreference preference = new DataPreference(LaunchActivity.this);
-       String nurse_id = preference.readStr("nurse_id");
-        if(TextUtils.isEmpty(nurse_id)){
-            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-        }else{
-            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, FingerprintActivity.class));
-        }
+//        DataPreference preference = new DataPreference(LaunchActivity.this);
+//       String nurse_id = preference.readStr("nurse_id");
+//        if(TextUtils.isEmpty(nurse_id)){
+//            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
+//        }else{
+//            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, FingerprintActivity.class));
+//        }
+        LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
         finish();
     }
 
+
     //连服务器
     private void connectTcpIpServer() {
-        ObservableZXDCSignalListenerThread observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
+
+        observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
+        resContext = new ResContext();
+        resContext.open();
+        timeHandlerObserver = new TimeHandlerObserver();
+        ObservableZXDCSignalListenerThread.addObserver(timeHandlerObserver);
+        timeRes = new TimeRes();
+        resContext.setCurState(timeRes);
         observableZXDCSignalListenerThread.start();
     }
 
@@ -128,10 +147,11 @@ public class LaunchActivity extends Activity {
                     //判断wifi是否已经连接上
                     MyLog.e(TAG, "wifiIsOk：" + wifiIsOk);
                     if (wifiIsOk) {
-                        mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME,4000);
+                        mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 4000);
                         break;
                     }
                 } else {
+                    MyLog.e(TAG, "open wifi");
                     wifiAdmin.openWifi();
                 }
                 try {
@@ -143,21 +163,19 @@ public class LaunchActivity extends Activity {
         }
 
     }
+
     private void startTimeService() {
         Intent it = new Intent(LaunchActivity.this, TimeService.class);
         it.putExtra("currenttime", ServerTime.curtime);
         startService(it);
     }
+
     private void syncTime() {
-        resContext = new ResContext();
-        resContext.open();
-        responseHandler = new ResponseHandler();
-        ObservableZXDCSignalListenerThread.addObserver(responseHandler);
-        timeRes = new TimeRes();
-        resContext.setCurState(timeRes);
+
+
     }
 
-    private class ResponseHandler extends Handler implements Observer {
+    private class TimeHandlerObserver extends Handler implements Observer {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -179,6 +197,7 @@ public class LaunchActivity extends Activity {
 
         }
     }
+
     private class TimeRes extends State {
 
         @Override
@@ -186,7 +205,7 @@ public class LaunchActivity extends Activity {
             switch (res) {
                 case TIMESTAMP:
                     resContext.setCurState(timeRes);
-                    startTimeService();
+//                    startTimeService();
                     jumpToLoginActivity();
                     break;
 
@@ -194,6 +213,7 @@ public class LaunchActivity extends Activity {
 
         }
     }
+
     private class ResContext {
         private State state;
 

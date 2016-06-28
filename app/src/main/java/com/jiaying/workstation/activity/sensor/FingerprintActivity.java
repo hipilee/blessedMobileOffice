@@ -238,7 +238,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        proxyFingerprintReader.close();
+//        proxyFingerprintReader.close();
         if (countDownTimerUtil != null) {
             countDownTimerUtil.cancel();
             countDownTimerUtil = null;

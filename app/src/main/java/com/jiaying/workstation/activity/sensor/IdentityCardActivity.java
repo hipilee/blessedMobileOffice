@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.loginandout.LoginActivity;
 import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
 import com.jiaying.workstation.activity.plasmacollection.ShowDonorInfoActivity;
 import com.jiaying.workstation.activity.search.SearchResultActivity;
