@@ -51,8 +51,8 @@ public class LaunchActivity extends Activity {
     private ResContext resContext;
     private TimeRes timeRes;
     private static final int MSG_SYNC_TIME = 1001;
-    private static final int MSG_SYNC_TIME_OUT=1002;
-    private static final int SYNC_TIME_OUT = 60*1000;
+    private static final int MSG_SYNC_TIME_OUT = 1002;
+    private static final int SYNC_TIME_OUT = 60 * 1000;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -62,10 +62,10 @@ public class LaunchActivity extends Activity {
                 //连接服务器,同时检测是否超时
                 connectTcpIpServer();
                 checkSyncTimeOut();
-            }else if(msg.what== MSG_SYNC_TIME_OUT){
+            } else if (msg.what == MSG_SYNC_TIME_OUT) {
                 //
-                MyLog.e(TAG,"sync time out");
-                if(!isFinishing()){
+                MyLog.e(TAG, "sync time out");
+                if (!isFinishing()) {
                     LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, ServerSettingActivity.class));
                     finish();
                 }
@@ -93,26 +93,27 @@ public class LaunchActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-//        autoWifiConnect();
+        autoWifiConnect();
 
         getPlasmaMachineList();
 //        LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
 //        finish();
-        jumpToLoginActivity();
+//        jumpToLoginActivity();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
+        observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
     }
 //检测等待时间信号是否超时
 
-    private void checkSyncTimeOut(){
+    private void checkSyncTimeOut() {
         SyncTimeoutThread syncTimeoutThread = new SyncTimeoutThread();
         syncTimeoutThread.start();
     }
-    private class SyncTimeoutThread extends Thread{
+
+    private class SyncTimeoutThread extends Thread {
         @Override
         public void run() {
             super.run();
@@ -124,6 +125,7 @@ public class LaunchActivity extends Activity {
             mHandler.sendEmptyMessage(MSG_SYNC_TIME_OUT);
         }
     }
+
     //自动连接wifi
     private void autoWifiConnect() {
         ConnectWifiThread connectWifiThread = new ConnectWifiThread("JiaYing_ZXDC", "jyzxdcarm", 3, this);
@@ -134,18 +136,18 @@ public class LaunchActivity extends Activity {
     private void jumpToLoginActivity() {
         MyLog.e(TAG, "jumpToLoginActivity");
         DataPreference preference = new DataPreference(LaunchActivity.this);
-       String nurse_id = preference.readStr("nurse_id");
-        MyLog.e(TAG,"nurse_id:" + nurse_id);
-        if(TextUtils.isEmpty(nurse_id)){
+        String nurse_id = preference.readStr("nurse_id");
+        MyLog.e(TAG, "nurse_id:" + nurse_id);
+        if (TextUtils.isEmpty(nurse_id)) {
             LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-        }else{
+        } else {
             //检查登录时效
             long loginedTime = preference.readLong("login_time");
             long currentTime = System.currentTimeMillis();
-            MyLog.e(TAG,"loginedTime:" + loginedTime + ",currentTime:" + currentTime);
-            if(loginedTime == -1 || ((currentTime - loginedTime >=60*1000))){
+            MyLog.e(TAG, "loginedTime:" + loginedTime + ",currentTime:" + currentTime);
+            if (loginedTime == -1 || ((currentTime - loginedTime >= 60 * 1000))) {
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-            }else{
+            } else {
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
             }
         }
@@ -192,7 +194,7 @@ public class LaunchActivity extends Activity {
                     //判断wifi是否已经连接上
                     MyLog.e(TAG, "wifiIsOk：" + wifiIsOk);
                     if (wifiIsOk) {
-//                        mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 0);
+                        mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 0);
 
                         break;
                     }
@@ -285,17 +287,17 @@ public class LaunchActivity extends Activity {
     }
 
     //模拟得到浆机状态信息
-    private void getPlasmaMachineList(){
+    private void getPlasmaMachineList() {
         List<PlasmaMachineEntity> plasmaMachineEntityList = new ArrayList<PlasmaMachineEntity>();
-        for(int i=0;i<8;i++){
+        for (int i = 10001; i < 10020; i++) {
             PlasmaMachineEntity entity = new PlasmaMachineEntity();
-            if (i%2==0){
+            if (i % 2 == 0) {
                 entity.setState(0);
-            }else{
+            } else {
                 entity.setState(1);
             }
-            entity.setNurseName("name"+i);
-            entity.setLocationID("locationId" + i);
+            entity.setNurseName("name" + i);
+            entity.setLocationID("" + i);
             plasmaMachineEntityList.add(entity);
         }
         MobileofficeApp.setPlasmaMachineEntityList(plasmaMachineEntityList);

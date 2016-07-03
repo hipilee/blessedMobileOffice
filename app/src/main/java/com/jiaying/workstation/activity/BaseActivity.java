@@ -22,11 +22,12 @@ public abstract class BaseActivity extends Activity {
     //初始化变量，包括Intent带的数据和Activity内的变量
     public abstract void initVariables();
 
-    //加载layout布局文件，初始化控件，为控件挂上时间方法
+    //加载layout布局文件，初始化控件，为控件挂上事件方法
     public abstract void initView();
 
     // 调用服务器API加载数据
     public abstract void loadData();
+
     @Override
     public void onBackPressed() {
     }
