@@ -67,13 +67,15 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
     }
 
     public static void addObserver(Observer observer) {
-        observableHint.addObserver(observer);
         if (observableHint == null) {
             Log.e("camera", "observableHint==null");
+            return;
         }
         if (observer == null) {
             Log.e("camera", "observer==null");
+            return;
         }
+        observableHint.addObserver(observer);
     }
 
     public static void deleteObserver(Observer observer) {

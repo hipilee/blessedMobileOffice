@@ -99,7 +99,7 @@ public class MainActivity extends BaseActivity {
     private void loginOut() {
         MobileofficeApp.clearPlasmaMachineEntityList();
         DataPreference preference = new DataPreference(MainActivity.this);
-        preference.writeStr("nurse_id","");
+        preference.writeStr("nurse_id","wrong");
         preference.commit();
     }
 

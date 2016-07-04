@@ -48,6 +48,7 @@ public class PlasmaMachineSelectAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.pulp_machine_select_item, null);
             holder = new MyHolder();
             holder.num_txt = (TextView) convertView.findViewById(R.id.num_txt);
+            holder.ll_container = convertView.findViewById(R.id.ll_container);
             convertView.setTag(holder);
         } else {
             holder = (MyHolder) convertView.getTag();
@@ -61,14 +62,17 @@ public class PlasmaMachineSelectAdapter extends BaseAdapter {
         if(mList.get(position).getState()==0){
             holder.num_txt.setBackgroundColor(mContext.getResources().getColor(R.color.white));
             holder.num_txt.setTextColor(mContext.getResources().getColor(R.color.main_color));
+            holder.ll_container.setBackgroundColor(mContext.getResources().getColor(R.color.main_color));
         }else{
-            holder.num_txt.setBackgroundColor(mContext.getResources().getColor(R.color.txt_grey));
+            holder.num_txt.setBackgroundColor(mContext.getResources().getColor(R.color.global_bg));
             holder.num_txt.setTextColor(mContext.getResources().getColor(R.color.txt_black));
+            holder.ll_container.setBackgroundColor(mContext.getResources().getColor(R.color.global_bg));
         }
         return convertView;
     }
 
     private class MyHolder {
         TextView num_txt;
+        View ll_container;
     }
 }

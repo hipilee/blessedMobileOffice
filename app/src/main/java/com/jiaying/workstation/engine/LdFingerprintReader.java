@@ -154,39 +154,26 @@ public class LdFingerprintReader implements IfingerprintReader {
             }
 
             int nRet = 0;
-            Log.e("error", "LdFingerprintReader 1" + DEV_ADDR);
             nRet = a6.ZAZGetImage(DEV_ADDR);
-            Log.e("error", "LdFingerprintReader 2" + DEV_ADDR);
             if (nRet == 0) {
-                Log.e("error", "LdFingerprintReader 3" + DEV_ADDR);
                 int[] len = {0, 0};
-                Log.e("error", "LdFingerprintReader 3.1" + DEV_ADDR);
                 char[] Image = new char[256 * 288];
-                Log.e("error", "LdFingerprintReader 3.2" + DEV_ADDR);
 //                char[] Image = new char[256 * 360];
                 a6.ZAZUpImage(DEV_ADDR, Image, len);
-                Log.e("error", "LdFingerprintReader 3.3" + DEV_ADDR);
                 String str = "/mnt/sdcard/test.bmp";
-                Log.e("error", "LdFingerprintReader 3.4" + DEV_ADDR);
                 a6.ZAZImgData2BMP(Image, str);
-                Log.e("error", "LdFingerprintReader 3.5" + DEV_ADDR);
 
                 Bitmap bmpDefaultPic;
                 bmpDefaultPic = BitmapFactory.decodeFile(str, null);
-                Log.e("error", "LdFingerprintReader 3.6" + DEV_ADDR);
 
                 onFingerprintReadCallback.onFingerPrintInfo(bmpDefaultPic);
-                Log.e("error", "LdFingerprintReader 3.7" + DEV_ADDR);
             } else if (nRet == a6.PS_NO_FINGER) {
-                Log.e("error", "LdFingerprintReader 4" + DEV_ADDR);
                 objHandler_fp.postDelayed(fpTasks, 100);
 
             } else if (nRet == a6.PS_GET_IMG_ERR) {
-                Log.e("error", "LdFingerprintReader 5" + DEV_ADDR);
                 objHandler_fp.postDelayed(fpTasks, 100);
                 return;
             } else {
-                Log.e("error", "LdFingerprintReader 6" + DEV_ADDR);
                 onFingerprintReadCallback.onFingerPrintInfo(null);
                 return;
             }

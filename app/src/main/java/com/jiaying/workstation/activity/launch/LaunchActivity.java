@@ -11,6 +11,7 @@ import android.softfan.dataCenter.DataCenterClientService;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
 import com.jiaying.workstation.R;
 
 import com.jiaying.workstation.activity.MainActivity;
@@ -21,6 +22,7 @@ import com.jiaying.workstation.activity.plasmacollection.Res;
 import com.jiaying.workstation.app.MobileofficeApp;
 import com.jiaying.workstation.db.DataPreference;
 import com.jiaying.workstation.entity.DeviceEntity;
+import com.jiaying.workstation.entity.NurseEntity;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
 import com.jiaying.workstation.entity.ServerTime;
 import com.jiaying.workstation.net.serveraddress.LogServer;
@@ -28,8 +30,11 @@ import com.jiaying.workstation.net.serveraddress.SignalServer;
 import com.jiaying.workstation.net.serveraddress.VideoServer;
 import com.jiaying.workstation.service.TimeService;
 import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
+import com.jiaying.workstation.utils.ApiClient;
 import com.jiaying.workstation.utils.MyLog;
+import com.jiaying.workstation.utils.ToastUtils;
 import com.jiaying.workstation.utils.WifiAdmin;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +46,7 @@ import java.util.Observer;
  */
 public class LaunchActivity extends Activity {
     private static final String TAG = "LaunchActivity";
-
-
     public static DataCenterClientService clientService = null;
-
-
     private TimeHandlerObserver timeHandlerObserver;
     private ObservableZXDCSignalListenerThread observableZXDCSignalListenerThread;
     private ResContext resContext;
@@ -59,7 +60,11 @@ public class LaunchActivity extends Activity {
             super.handleMessage(msg);
             MyLog.e(TAG, "sync time");
             if (msg.what == MSG_SYNC_TIME) {
-                //连接服务器,同时检测是否超时
+                //连接网络成功后
+                // 1.http请求设备状态
+                // 2.连接物联网协议服务器,
+                // 3.同时检测连接物联网协议是否超时
+                loadData();
                 connectTcpIpServer();
                 checkSyncTimeOut();
             } else if (msg.what == MSG_SYNC_TIME_OUT) {
@@ -78,6 +83,7 @@ public class LaunchActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
         initDdataPreference();
+        autoWifiConnect();
     }
 
     private void initDdataPreference() {
@@ -93,12 +99,7 @@ public class LaunchActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        autoWifiConnect();
 
-        getPlasmaMachineList();
-//        LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-//        finish();
-//        jumpToLoginActivity();
     }
 
     @Override
@@ -133,12 +134,12 @@ public class LaunchActivity extends Activity {
         connectWifiThread.start();
     }
 
-    private void jumpToLoginActivity() {
-        MyLog.e(TAG, "jumpToLoginActivity");
+    private void jumpActivity() {
         DataPreference preference = new DataPreference(LaunchActivity.this);
         String nurse_id = preference.readStr("nurse_id");
         MyLog.e(TAG, "nurse_id:" + nurse_id);
-        if (TextUtils.isEmpty(nurse_id)) {
+
+        if (nurse_id.equals("wrong")) {
             LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
         } else {
             //检查登录时效
@@ -151,14 +152,12 @@ public class LaunchActivity extends Activity {
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
             }
         }
-//        LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
         finish();
     }
 
 
     //连服务器
     private void connectTcpIpServer() {
-
         observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
         resContext = new ResContext();
         resContext.open();
@@ -195,7 +194,6 @@ public class LaunchActivity extends Activity {
                     MyLog.e(TAG, "wifiIsOk：" + wifiIsOk);
                     if (wifiIsOk) {
                         mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 0);
-
                         break;
                     }
                 } else {
@@ -249,8 +247,8 @@ public class LaunchActivity extends Activity {
             switch (res) {
                 case TIMESTAMP:
                     resContext.setCurState(timeRes);
-//                    startTimeService();
-                    jumpToLoginActivity();
+                    startTimeService();
+                    jumpActivity();
                     break;
 
             }
@@ -286,8 +284,10 @@ public class LaunchActivity extends Activity {
         abstract void handle(Res res);
     }
 
-    //模拟得到浆机状态信息
-    private void getPlasmaMachineList() {
+
+    //模拟得到浆机状态信息,正式数据需要删除
+    private void getLocalTempPlasmaMachineList() {
+
         List<PlasmaMachineEntity> plasmaMachineEntityList = new ArrayList<PlasmaMachineEntity>();
         for (int i = 10001; i < 10020; i++) {
             PlasmaMachineEntity entity = new PlasmaMachineEntity();
@@ -297,9 +297,38 @@ public class LaunchActivity extends Activity {
                 entity.setState(1);
             }
             entity.setNurseName("name" + i);
-            entity.setLocationID("" + i);
+
+            entity.setLocationID(i + 1 + "");
             plasmaMachineEntityList.add(entity);
         }
         MobileofficeApp.setPlasmaMachineEntityList(plasmaMachineEntityList);
+    }
+
+    private void loadData() {
+        MyLog.e(TAG, "send locations request");
+        ApiClient.get("locations", new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
+                if (bytes != null && bytes.length > 0) {
+                    String result = new String(bytes);
+                    MyLog.e(TAG, "locations result:" + result);
+                    if (!TextUtils.isEmpty(result)) {
+                        List<PlasmaMachineEntity> plasmaMachineEntityList = JSON.parseArray(result, PlasmaMachineEntity.class);
+                        if (plasmaMachineEntityList != null) {
+                            MobileofficeApp.setPlasmaMachineEntityList(plasmaMachineEntityList);
+                        } else {
+                            getLocalTempPlasmaMachineList();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int i, org.apache.http.Header[] headers, byte[] bytes, Throwable throwable) {
+                MyLog.e(TAG, "locations result fail reason:" + throwable.toString());
+                getLocalTempPlasmaMachineList();
+                ToastUtils.showToast(LaunchActivity.this, R.string.http_req_fail);
+            }
+        });
     }
 }

@@ -2,7 +2,9 @@ package com.jiaying.workstation.activity.sensor;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ImageView;
@@ -91,8 +93,6 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         proxyFingerprintReader = ProxyFingerprintReader.getInstance(ifingerprintReader);
         proxyFingerprintReader.setOnFingerprintReadCallback(this);
 
-        int status = proxyFingerprintReader.open();
-        showOpenResult(status);
 
     }
 
@@ -122,7 +122,6 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         countDownTimerUtil = CountDownTimerUtil.getInstance(result_txt, this);
         countDownTimerUtil.start();
 
-        proxyFingerprintReader.read();
 
         switch (source) {
 
@@ -157,7 +156,9 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     @Override
     protected void onResume() {
         super.onResume();
-
+        final int status = proxyFingerprintReader.open();
+        showOpenResult(status);
+        proxyFingerprintReader.read();
     }
 
     @Override
@@ -169,7 +170,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
                 @Override
                 public void run() {
                     countDownTimerUtil.cancel();
-                    photo_image.setImageBitmap(bitmap);
+                    photo_image.setImageBitmap(convert(bitmap));
                 }
             });
 
@@ -187,6 +188,26 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
             });
         }
 
+
+    }
+
+    private Bitmap convert(Bitmap a) {
+
+        int w = a.getWidth();
+        int h = a.getHeight();
+        Bitmap newb = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);// 创建一个新的和SRC长度宽度一样的位图
+        Canvas cv = new Canvas(newb);
+        Matrix m = new Matrix();
+//        m.postScale(1, -1);   //镜像垂直翻转
+        m.postScale(-1, 1);   //镜像水平翻转
+//        m.postRotate(-90);  //旋转-90度
+        Bitmap new2 = Bitmap.createBitmap(a, 0, 0, w, h, m, true);
+        cv.drawBitmap(new2, new Rect(0, 0, new2.getWidth(), new2.getHeight()), new Rect(0, 0, w, h), null);
+
+//        return newb;
+//        Bitmap roundBitmap = BitmapUtils.makeRoundCorner(newb);
+//        MyLog.e("ERROR",roundBitmap.getWidth() + ",height:" + roundBitmap.getHeight());
+        return newb;
 
     }
 
@@ -219,12 +240,11 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
             } else if (type == TypeConstant.TYPE_SELECT_MACHINE) {
                 it = new Intent(FingerprintActivity.this, SelectPlasmaMachineResultActivity.class);
                 it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, getIntent().getSerializableExtra(IntentExtra.EXTRA_PLASMAMACHINE));
-            } else if(type == TypeConstant.TYPE_SELECT_MACHINE){
+            } else if (type == TypeConstant.TYPE_SELECT_MACHINE) {
                 it = new Intent(FingerprintActivity.this, SelectPlasmaMachineResultActivity.class);
                 it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, getIntent().getExtras());
                 startActivity(it);
-            }
-            else {
+            } else {
                 //其他的情况
                 it = new Intent(FingerprintActivity.this, MainActivity.class);
             }

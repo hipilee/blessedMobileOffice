@@ -23,6 +23,7 @@ import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
 import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
+import com.jiaying.workstation.utils.MyLog;
 import com.jiaying.workstation.utils.SetTopView;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 public class SelectPlasmaMachineActivity extends BaseActivity {
+    private static final String TAG = "SelectPlasmaMachineActivity";
     private GridView mGridView;
     private List<PlasmaMachineEntity> mList;
     private PlasmaMachineSelectAdapter mAdapter;
