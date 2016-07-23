@@ -108,7 +108,8 @@ public class LdFingerprintReader implements IfingerprintReader {
             int fd = getrwusbdevices();
             status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
         }
-        Log.e(tag, "open()");
+        Log.e(tag, "open()"+status);
+
         return status;
     }
 
@@ -154,27 +155,40 @@ public class LdFingerprintReader implements IfingerprintReader {
             }
 
             int nRet = 0;
+            Log.e(tag, "run()");
             nRet = a6.ZAZGetImage(DEV_ADDR);
             if (nRet == 0) {
+                Log.e(tag, "run()"+1.1);
                 int[] len = {0, 0};
+                Log.e(tag, "run()"+1.2);
                 char[] Image = new char[256 * 288];
+                Log.e(tag, "run()"+1.3);
 //                char[] Image = new char[256 * 360];
                 a6.ZAZUpImage(DEV_ADDR, Image, len);
+                Log.e(tag, "run()" + 1.4);
                 String str = "/mnt/sdcard/test.bmp";
+                Log.e(tag, "run()" + 1.5);
                 a6.ZAZImgData2BMP(Image, str);
-
+                Log.e(tag, "run()" + 1.6);
                 Bitmap bmpDefaultPic;
+                Log.e(tag, "run()" + 1.7);
                 bmpDefaultPic = BitmapFactory.decodeFile(str, null);
-
+                Log.e(tag, "run()" + 1.8);
                 onFingerprintReadCallback.onFingerPrintInfo(bmpDefaultPic);
+                Log.e(tag, "run()" + 1.9);
             } else if (nRet == a6.PS_NO_FINGER) {
+                Log.e(tag, "run()" + 2.1);
                 objHandler_fp.postDelayed(fpTasks, 100);
-
+                Log.e(tag, "run()" + 2.2);
             } else if (nRet == a6.PS_GET_IMG_ERR) {
+                Log.e(tag, "run()" + 3.1);
                 objHandler_fp.postDelayed(fpTasks, 100);
+                Log.e(tag, "run()" + 3.2);
                 return;
             } else {
+                Log.e(tag, "run()" + 4.1);
                 onFingerprintReadCallback.onFingerPrintInfo(null);
+                Log.e(tag, "run()" + 4.2);
                 return;
             }
         }
@@ -274,8 +288,7 @@ public class LdFingerprintReader implements IfingerprintReader {
         byte[] tmp = {5, 6, 7};
         //a6.ZAZBT_rev(tmp, tmp.length);
         objHandler_fp.removeCallbacks(fpTasks);
-//        int status = a6.ZAZCloseDeviceEx();
-//        za_finger.finger_power_off();
+        za_finger.finger_power_off();
         int status = a6.ZAZCloseDeviceEx();
         return status;
     }

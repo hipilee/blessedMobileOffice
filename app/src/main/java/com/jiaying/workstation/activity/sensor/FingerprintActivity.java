@@ -98,8 +98,8 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
 
     private void showOpenResult(int status) {
         if (status == 1) {
-//            Toast.makeText(this, "打开设备成功",
-//                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "打开设备成功",
+                    Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "打开设备失败",
                     Toast.LENGTH_SHORT).show();
@@ -158,6 +158,10 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         super.onResume();
         final int status = proxyFingerprintReader.open();
         showOpenResult(status);
+        if (1 != status) {
+            proxyFingerprintReader.close();
+            this.finish();
+        }
         proxyFingerprintReader.read();
     }
 

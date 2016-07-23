@@ -298,7 +298,7 @@ public class LaunchActivity extends Activity {
             }
             entity.setNurseName("name" + i);
 
-            entity.setLocationID(i + 1 + "");
+            entity.setLocationID(i + "");
             plasmaMachineEntityList.add(entity);
         }
         MobileofficeApp.setPlasmaMachineEntityList(plasmaMachineEntityList);
