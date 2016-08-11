@@ -161,8 +161,9 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         if (1 != status) {
             proxyFingerprintReader.close();
             this.finish();
+        } else {
+            proxyFingerprintReader.read();
         }
-        proxyFingerprintReader.read();
     }
 
     @Override

@@ -90,25 +90,35 @@ public class LdFingerprintReader implements IfingerprintReader {
 
         char[] pPassword = new char[4];
 
+        //给指纹和身份证上电
         za_finger.finger_power_on();
         za_finger.card_power_on();
 
+        //延时2秒
         wait2sec();
 
         int status = 0;
+
         if (1 == usborcomtype) {
             LongDunD8800_CheckEuq();
+
             status = a6.ZAZOpenDeviceEx(-1, defDeviceType, defiCom, defiBaud, 0, 0);
+
             if (status == 1 && a6.ZAZVfyPwd(DEV_ADDR, pPassword) == 0) {
                 status = 1;
             } else {
+                //打开失败要重置
+                za_finger.hub_rest(2000);
+                a6.ZAZCloseDeviceEx();
+                za_finger.finger_power_off();
+                za_finger.card_power_off();
                 status = 0;
             }
         } else {
             int fd = getrwusbdevices();
             status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
         }
-        Log.e(tag, "open()"+status);
+        Log.e(tag, "open()" + status);
 
         return status;
     }
@@ -158,11 +168,11 @@ public class LdFingerprintReader implements IfingerprintReader {
             Log.e(tag, "run()");
             nRet = a6.ZAZGetImage(DEV_ADDR);
             if (nRet == 0) {
-                Log.e(tag, "run()"+1.1);
+                Log.e(tag, "run()" + 1.1);
                 int[] len = {0, 0};
-                Log.e(tag, "run()"+1.2);
+                Log.e(tag, "run()" + 1.2);
                 char[] Image = new char[256 * 288];
-                Log.e(tag, "run()"+1.3);
+                Log.e(tag, "run()" + 1.3);
 //                char[] Image = new char[256 * 360];
                 a6.ZAZUpImage(DEV_ADDR, Image, len);
                 Log.e(tag, "run()" + 1.4);
@@ -283,14 +293,16 @@ public class LdFingerprintReader implements IfingerprintReader {
 
     @Override
     public int close() {
-//        Log.e(tag, "close()-1");
-        fpflag = true;
-        byte[] tmp = {5, 6, 7};
-        //a6.ZAZBT_rev(tmp, tmp.length);
-        objHandler_fp.removeCallbacks(fpTasks);
-        za_finger.finger_power_off();
-        int status = a6.ZAZCloseDeviceEx();
-        return status;
+////        Log.e(tag, "close()-1");
+//        fpflag = true;
+//        byte[] tmp = {5, 6, 7};
+//        //a6.ZAZBT_rev(tmp, tmp.length);
+//        objHandler_fp.removeCallbacks(fpTasks);
+////        za_finger.finger_power_off();
+////        za_finger.card_power_off();
+//        int status = a6.ZAZCloseDeviceEx();
+//        return status;
+        return 1;
     }
 
     @Override

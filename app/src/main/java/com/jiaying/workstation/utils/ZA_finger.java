@@ -20,8 +20,7 @@ import java.io.IOException;
 
 
 public class ZA_finger {
-
-	final  String  HUB_RST_PATCH="/sys/zhwpower/zhw_hubrest";
+	final  String  HUB_RST_PATCH="/sys/zhwpower/zhw_hub_rest";
 	final  String  CARD_POWER_PATCH="/sys/zhwpower/zhw_power_card";
 	final  String  FINGER_POWER_PATCH="/sys/zhwpower/zhw_power_card";
 	final  String  DOOR1_POWER_PATCH="/sys/zhwpower/zhw_power_door1";

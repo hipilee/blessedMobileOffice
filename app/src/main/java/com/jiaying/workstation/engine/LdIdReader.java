@@ -60,6 +60,8 @@ public class LdIdReader implements IidReader {
                 return 0;
             }
         } else {//上电失败
+            ZAZAPI.CloseIDCardDevice(null);
+            ZAZAPI.card_power_on();
             return 0;
         }
     }

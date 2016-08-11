@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
@@ -82,12 +83,26 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     @Override
     protected void onResume() {
         super.onResume();
+        final int status = proxyIdReader.open();
+        showOpenResult(status);
         //  打开身份证读卡器
-        proxyIdReader.open();
-        //// TODO: 2016/3/22  对上电失败要报警
+        if (1 == status) {
+            //开始尝试读取身份证信息
+            proxyIdReader.read();
+        } else {
+            proxyIdReader.close();
+            this.finish();
+        }
+    }
 
-        //开始尝试读取身份证信息
-        proxyIdReader.read();
+    private void showOpenResult(int status) {
+        if (status == 1) {
+            Toast.makeText(this, "打开设备成功",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "打开设备失败",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
