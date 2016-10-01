@@ -98,10 +98,10 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
 
     private void showOpenResult(int status) {
         if (status == 1) {
-            Toast.makeText(this, "打开设备成功",
+            Toast.makeText(this, "打开指纹设备：成功",
                     Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "打开设备失败",
+            Toast.makeText(this, "打开指纹设备：失败",
                     Toast.LENGTH_SHORT).show();
         }
     }

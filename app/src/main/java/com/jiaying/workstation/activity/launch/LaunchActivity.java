@@ -82,6 +82,8 @@ public class LaunchActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+        MobileofficeApp app = (MobileofficeApp) getApplication();
+        app.initCrash();
         initDdataPreference();
         autoWifiConnect();
     }

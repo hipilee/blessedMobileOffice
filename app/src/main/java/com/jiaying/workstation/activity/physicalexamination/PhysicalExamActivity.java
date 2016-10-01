@@ -69,7 +69,6 @@ public class PhysicalExamActivity extends BaseActivity {
             it.putExtra(IntentExtra.EXTRA_TYPE, TypeConstant.TYPE_PHYSICAL_EXAM_SUBMIT_XJ);
             startActivity(it);
         }
-
     }
 
     @Override

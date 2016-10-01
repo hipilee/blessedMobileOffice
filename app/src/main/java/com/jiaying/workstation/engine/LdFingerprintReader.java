@@ -94,7 +94,7 @@ public class LdFingerprintReader implements IfingerprintReader {
         za_finger.finger_power_on();
         za_finger.card_power_on();
 
-        //延时2秒
+        //延时1秒
         wait2sec();
 
         int status = 0;

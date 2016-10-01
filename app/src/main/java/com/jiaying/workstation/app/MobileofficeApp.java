@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
+import com.jiaying.workstation.utils.CrashException;
 import com.jiaying.workstation.utils.MyLog;
 
 import java.util.ArrayList;
@@ -22,6 +23,11 @@ public class MobileofficeApp extends Application {
         super.onCreate();
         MyLog.e(TAG,"Application onCreate");
         Fresco.initialize(this);
+    }
+    public void initCrash() {
+        // 设置该CrashHandler为程序的默认处理器
+        CrashException catchExcep = new CrashException(this);
+        Thread.setDefaultUncaughtExceptionHandler(catchExcep);
     }
 
     @Override

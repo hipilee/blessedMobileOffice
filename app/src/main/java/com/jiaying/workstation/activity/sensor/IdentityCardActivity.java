@@ -97,10 +97,10 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
 
     private void showOpenResult(int status) {
         if (status == 1) {
-            Toast.makeText(this, "打开设备成功",
+            Toast.makeText(this, "打开证件设备：成功",
                     Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "打开设备失败",
+            Toast.makeText(this, "打开证件设备：失败",
                     Toast.LENGTH_SHORT).show();
         }
     }
