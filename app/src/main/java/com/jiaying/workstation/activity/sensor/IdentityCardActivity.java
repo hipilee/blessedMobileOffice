@@ -29,7 +29,7 @@ import com.jiaying.workstation.utils.SetTopView;
 /*
 身份证模块
  */
-public class IdentityCardActivity extends BaseActivity implements IidReader.OnIdReadCallback {
+public class IdentityCardActivity extends BaseActivity implements IidReader.OnIdReadCallback, IidReader.OnIdopenCallback {
     private static final String TAG = "IdentityCardActivity";
     private TextView result_txt;
     private TextView state_txt;
@@ -45,7 +45,6 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -60,8 +59,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
 
         //  指纹读卡器读取到身份证后才会调用该回调函数
         proxyIdReader.setOnIdReadCallback(this);
-
-
+        proxyIdReader.setOnIdOpenCallback(this);
     }
 
     @Override
@@ -83,16 +81,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     @Override
     protected void onResume() {
         super.onResume();
-        final int status = proxyIdReader.open();
-        showOpenResult(status);
-        //  打开身份证读卡器
-        if (1 == status) {
-            //开始尝试读取身份证信息
-            proxyIdReader.read();
-        } else {
-            proxyIdReader.close();
-            this.finish();
-        }
+        proxyIdReader.open();
     }
 
     private void showOpenResult(int status) {
@@ -124,6 +113,19 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
 
         } else {
             MyLog.e(TAG, "card is null");
+        }
+    }
+
+    @Override
+    public void onOpen(int status) {
+        showOpenResult(status);
+        //  打开身份证读卡器
+        if (1 == status) {
+            //开始尝试读取身份证信息
+            proxyIdReader.read();
+        } else {
+            proxyIdReader.close();
+            this.finish();
         }
     }
 

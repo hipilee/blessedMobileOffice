@@ -18,14 +18,42 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="0.191" />
-
-        <Button
-            android:id="@+id/btn_collection"
-            style="@style/btn_style"
+        <LinearLayout
             android:layout_width="0dp"
+            android:orientation="vertical"
             android:layout_height="wrap_content"
-            android:layout_weight="0.618"
-            android:text="@string/caijiang" />
+            android:layout_weight="0.618">
+            <Button
+                android:id="@+id/btn_collection"
+                style="@style/btn_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/shuasfz"
+                android:padding="30dp"/>
+
+            <LinearLayout
+                android:layout_marginTop="@dimen/btn_margin_large"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/btn_idcard_forget"
+                    android:layout_marginRight="@dimen/btn_padding"
+                    style="@style/btn_style2"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/idcard_forget_take" />
+                <Button
+                    android:id="@+id/btn_idcard_broken"
+                    style="@style/btn_style2"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/idcard_broken" />
+            </LinearLayout>
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="0dp"

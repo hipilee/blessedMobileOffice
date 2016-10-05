@@ -34,7 +34,7 @@ import java.lang.reflect.Type;
 /*
 指纹认证模块
  */
-public class FingerprintActivity extends BaseActivity implements IfingerprintReader.OnFingerprintReadCallback {
+public class FingerprintActivity extends BaseActivity implements IfingerprintReader.OnFingerprintReadCallback,IfingerprintReader.OnFingerprintOpenCallback {
     private static final String TAG = "FingerprintActivity";
     private Handler mHandler = new Handler();
     private Runnable mRunnable = null;
@@ -43,6 +43,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     private IfingerprintReader ifingerprintReader = null;
     private ProxyFingerprintReader proxyFingerprintReader = null;
     //    private CountDownTimerUtil countDownTimerUtil;
+
     private TextView result_txt;
     private TextView state_txt;
     private ImageView photo_image;
@@ -54,9 +55,6 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     private Bitmap avatarBitmap = null;
     private String idCardNO = null;
     private int source;
-
-    private IidReader iidReader;
-    private ProxyIdReader proxyIdReader;
 
     private CountDownTimerUtil countDownTimerUtil;
 
@@ -92,8 +90,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         ifingerprintReader = LdFingerprintReader.getInstance(this);
         proxyFingerprintReader = ProxyFingerprintReader.getInstance(ifingerprintReader);
         proxyFingerprintReader.setOnFingerprintReadCallback(this);
-
-
+        proxyFingerprintReader.setOnFingerprintOpenCallback(this);
     }
 
     private void showOpenResult(int status) {
@@ -156,14 +153,7 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     @Override
     protected void onResume() {
         super.onResume();
-        final int status = proxyFingerprintReader.open();
-        showOpenResult(status);
-        if (1 != status) {
-            proxyFingerprintReader.close();
-            this.finish();
-        } else {
-            proxyFingerprintReader.read();
-        }
+        proxyFingerprintReader.open();
     }
 
     @Override
@@ -192,8 +182,17 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
                 }
             });
         }
+    }
 
-
+    @Override
+    public void onFingerPrintOpenInfo(int status) {
+        showOpenResult(status);
+        if (1 != status) {
+            proxyFingerprintReader.close();
+            this.finish();
+        } else {
+            proxyFingerprintReader.read();
+        }
     }
 
     private Bitmap convert(Bitmap a) {
@@ -215,6 +214,8 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
         return newb;
 
     }
+
+
 
     private class runnable implements Runnable {
         @Override

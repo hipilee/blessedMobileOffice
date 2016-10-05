@@ -33,6 +33,7 @@ import java.util.Iterator;
 public class LdFingerprintReader implements IfingerprintReader {
 
     private OnFingerprintReadCallback onFingerprintReadCallback;
+    private OnFingerprintOpenCallback onFingerprintOpenCallback;
     private Activity mActivity;
     private ZA_finger za_finger;
     private boolean fpflag = false;
@@ -66,13 +67,13 @@ public class LdFingerprintReader implements IfingerprintReader {
         defiCom = 3;
         defiBaud = 12;
 //******在线程中执行读取指纹操作
-//        thread = new HandlerThread("MyHandlerThread");
-//        thread.start();
-//        objHandler_fp = new Handler(thread.getLooper());
+        thread = new HandlerThread("MyHandlerThread");
+        thread.start();
+        objHandler_fp = new Handler(thread.getLooper());
 //******在线程中执行读取指纹操作
 
 //********在主线程中执行读取指纹操作
-        objHandler_fp = new Handler();
+//        objHandler_fp = new Handler();
 //********在主线程中执行读取指纹操作
 
         za_finger = new ZA_finger();
@@ -86,48 +87,54 @@ public class LdFingerprintReader implements IfingerprintReader {
 
     //打开设备
     @Override
-    public int open() {
-
-        char[] pPassword = new char[4];
-
-        //给指纹和身份证上电
-        za_finger.finger_power_on();
-        za_finger.card_power_on();
-
-        //延时1秒
-        wait2sec();
-
-        int status = 0;
-
-        if (1 == usborcomtype) {
-            LongDunD8800_CheckEuq();
-
-            status = a6.ZAZOpenDeviceEx(-1, defDeviceType, defiCom, defiBaud, 0, 0);
-
-            if (status == 1 && a6.ZAZVfyPwd(DEV_ADDR, pPassword) == 0) {
-                status = 1;
-            } else {
-                //打开失败要重置
-                za_finger.hub_rest(2000);
-                a6.ZAZCloseDeviceEx();
-                za_finger.finger_power_off();
-                za_finger.card_power_off();
-                status = 0;
-            }
-        } else {
-            int fd = getrwusbdevices();
-            status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
-        }
-        Log.e(tag, "open()" + status);
-
-        return status;
+    public void open() {
+        openFpReader();
     }
+
+    public void openFpReader() {
+        objHandler_fp.postDelayed(fpOpenTask, 0);
+    }
+
+    private Runnable fpOpenTask = new Runnable() {
+        @Override
+        public void run() {
+            char[] pPassword = new char[4];
+
+            //给指纹和身份证上电
+            za_finger.finger_power_on();
+            za_finger.card_power_on();
+
+            wait2sec();
+            int status = 0;
+
+            if (1 == usborcomtype) {
+                LongDunD8800_CheckEuq();
+
+                status = a6.ZAZOpenDeviceEx(-1, defDeviceType, defiCom, defiBaud, 0, 0);
+
+                if (status == 1 && a6.ZAZVfyPwd(DEV_ADDR, pPassword) == 0) {
+                    status = 1;
+                } else {
+                    //打开失败要重置
+                    za_finger.hub_rest(2000);
+                    a6.ZAZCloseDeviceEx();
+                    za_finger.finger_power_off();
+                    za_finger.card_power_off();
+                    status = 0;
+                }
+            } else {
+                int fd = getrwusbdevices();
+                status = a6.ZAZOpenDeviceEx(fd, defDeviceType, defiCom, defiBaud, 0, 0);
+            }
+            Log.e(tag, "open()" + status);
+            onFingerprintOpenCallback.onFingerPrintOpenInfo(status);
+        }
+    };
 
     private void wait2sec() {
         try {
-            thread.sleep(2000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -308,6 +315,11 @@ public class LdFingerprintReader implements IfingerprintReader {
     @Override
     public void setOnFingerprintReadCallback(OnFingerprintReadCallback onFingerprintReadCallback) {
         this.onFingerprintReadCallback = onFingerprintReadCallback;
+    }
+
+    @Override
+    public void setOnFingerprintOpenCallback(OnFingerprintOpenCallback onFingerprintOpenCallback) {
+        this.onFingerprintOpenCallback = onFingerprintOpenCallback;
     }
 
 }

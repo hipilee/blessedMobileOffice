@@ -10,7 +10,9 @@
     <dimen name="comm_title_height">70dp</dimen>
     <dimen name="comm_title_margin_right">14dp</dimen>
     <dimen name="btn_margin">20dp</dimen>
+    <dimen name="btn_margin_large">30dp</dimen>
     <dimen name="btn_padding">10dp</dimen>
+    <dimen name="btn_large_padding">30dp</dimen>
     <dimen name="btn_height">44dp</dimen>
     <dimen name="btn_inner_padding">5dp</dimen>
     <dimen name="login_edit_padding_left">12dp</dimen>

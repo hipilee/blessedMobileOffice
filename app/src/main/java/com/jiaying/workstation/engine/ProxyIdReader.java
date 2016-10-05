@@ -15,14 +15,14 @@ public class ProxyIdReader implements IidReader {
 
     public synchronized static ProxyIdReader getInstance(IidReader iidReader) {
 
-            proxyIdReader = new ProxyIdReader(iidReader);
+        proxyIdReader = new ProxyIdReader(iidReader);
 
         return proxyIdReader;
     }
 
     @Override
-    public int open() {
-        return this.iidReader.open();
+    public void open() {
+        this.iidReader.open();
     }
 
     @Override
@@ -38,5 +38,10 @@ public class ProxyIdReader implements IidReader {
     @Override
     public void setOnIdReadCallback(OnIdReadCallback onIdReadCallback) {
         this.iidReader.setOnIdReadCallback(onIdReadCallback);
+    }
+
+    @Override
+    public void setOnIdOpenCallback(OnIdopenCallback onIdOpenCallback) {
+        this.iidReader.setOnIdOpenCallback(onIdOpenCallback);
     }
 }

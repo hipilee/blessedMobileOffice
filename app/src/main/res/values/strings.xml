@@ -9,6 +9,9 @@
     <string name="caijiang">采浆</string>
     <string name="diaodu">调度</string>
     <string name="chaxun">查询</string>
+    <string name="shuasfz">刷身份证</string>
+    <string name="idcard_forget_take">忘带身份证</string>
+    <string name="idcard_broken">身份证损坏</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_pulp_machine_for_nurse">选择登录身份</string>
@@ -98,4 +101,7 @@
     <string name="face_collect">调整姿势,录入正面人脸</string>
     <string name="face_collect_sucess">采集成功</string>
     <string name="http_req_fail">网络或服务器故障</string>
+    <string name="input_idcard_tip">输入身份证号/浆员编号</string>
+    <string name="input_idcard">手动录入编号</string>
+    <string name="input_idcard_wrong_tip">号码位数不正确</string>
 </resources>

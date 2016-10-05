@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.jiaying.workstation.R;
+import com.jiaying.workstation.activity.plasmacollection.ManualDealIdCardActivity;
 import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
 import com.jiaying.workstation.activity.sensor.FingerprintActivity;
 import com.jiaying.workstation.activity.sensor.IdentityCardActivity;
@@ -22,6 +23,9 @@ public class BloodPlasmaCollectionFragment extends Fragment {
     private Button nurse_login_btn;
     private Button pulp_btn;
     private DealFlag btn_collection_flag;
+
+    private Button btn_idcard_forget;
+    private Button btn_idcard_broken;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,11 @@ public class BloodPlasmaCollectionFragment extends Fragment {
         pulp_btn = (Button) view.findViewById(R.id.btn_collection);
         pulp_btn.setOnClickListener(new ClickListener());
         btn_collection_flag = new DealFlag();
+
+        btn_idcard_forget = (Button) view.findViewById(R.id.btn_idcard_forget);
+        btn_idcard_forget.setOnClickListener(new ClickListener());
+        btn_idcard_broken = (Button) view.findViewById(R.id.btn_idcard_broken);
+        btn_idcard_broken.setOnClickListener(new ClickListener());
         return view;
     }
 
@@ -50,8 +59,27 @@ public class BloodPlasmaCollectionFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (btn_collection_flag.isFirst()) {
-                Intent it = new Intent(getActivity(), IdentityCardActivity.class);
-                startActivity(it);
+                Intent it = null;
+                switch (v.getId()) {
+                    case R.id.btn_collection:
+                        it = new Intent(getActivity(), IdentityCardActivity.class);
+                        it.putExtra("type","normal");
+                        break;
+                    case R.id.btn_idcard_forget:
+                        it = new Intent(getActivity(), ManualDealIdCardActivity.class);
+                        it.putExtra("type","forgot");
+                        break;
+                    case R.id.btn_idcard_broken:
+                        it = new Intent(getActivity(), ManualDealIdCardActivity.class);
+                        it.putExtra("type","broken");
+                        break;
+                    default:
+                        break;
+                }
+                if(it!=null){
+                    startActivity(it);
+                }
+
             }
         }
     }

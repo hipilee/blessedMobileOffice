@@ -14,6 +14,7 @@ import com.jiaying.workstation.utils.LDAPI;
  */
 public class LdIdReader implements IidReader {
     private OnIdReadCallback onIdReadCallback;
+    private OnIdopenCallback onIdopenCallback;
     long ssart = System.currentTimeMillis();
     long ssend = System.currentTimeMillis();
     private HandlerThread readHandlerThread;
@@ -35,9 +36,9 @@ public class LdIdReader implements IidReader {
 //**       线程中完成
 
 //**  主线程中完成
-        readHandlerThread = new HandlerThread("read card thread");
-        readHandlerThread.start();
-        cardHandler = new Handler();
+//        readHandlerThread = new HandlerThread("read card thread");
+//        readHandlerThread.start();
+//        cardHandler = new Handler();
 //**  主线程完成
     }
 
@@ -47,22 +48,42 @@ public class LdIdReader implements IidReader {
     }
 
     @Override
-    public int open() {
+    public void open() {
+        cardHandler.postDelayed(openTasks, 0);
 
-        // 上电
-        int powerOnFlag = ZAZAPI.card_power_on();
-        if (1 == powerOnFlag) {//上电成功
-            // 初始化
-            boolean initFlag = ZAZAPI.InitIDCardDevice(null);
-            if (initFlag) {//初始化成功
-                return 1;
-            } else {//初始化失败
-                return 0;
+    }
+
+    private Runnable openTasks = new Runnable() {
+        int status;
+
+        @Override
+        public void run() {
+            // 上电
+            int powerOnFlag = ZAZAPI.card_power_on();
+
+            wait1sec();
+            if (1 == powerOnFlag) {//上电成功
+                // 初始化
+                boolean initFlag = ZAZAPI.InitIDCardDevice(null);
+                if (initFlag) {//初始化成功
+                    status = 1;
+                } else {//初始化失败
+                    status = 0;
+                }
+            } else {//上电失败
+                ZAZAPI.CloseIDCardDevice(null);
+                ZAZAPI.card_power_on();
+                status = 0;
             }
-        } else {//上电失败
-            ZAZAPI.CloseIDCardDevice(null);
-            ZAZAPI.card_power_on();
-            return 0;
+            onIdopenCallback.onOpen(status);
+        }
+    };
+
+    private void wait1sec() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -159,6 +180,7 @@ public class LdIdReader implements IidReader {
             card.setDay(LDAPI.idcard.birthday.substring(6, 8));
             card.setIdcardno(LDAPI.idcard.idcardno);
             card.setPhotoBmp(ZAZAPI.getPhotoBmp());
+            card.setType("normal");
             onIdReadCallback.onRead(card);
         }
     }
@@ -182,5 +204,10 @@ public class LdIdReader implements IidReader {
     public void setOnIdReadCallback(OnIdReadCallback onIdReadCallback) {
         this.onIdReadCallback = onIdReadCallback;
 
+    }
+
+    @Override
+    public void setOnIdOpenCallback(OnIdopenCallback onIdOpenCallback) {
+        this.onIdopenCallback = onIdOpenCallback;
     }
 }

@@ -50,6 +50,12 @@
         </activity>
 
         <activity
+            android:name=".activity.plasmacollection.ManualDealIdCardActivity"
+            android:label="@string/title_activity_main"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+
+        <activity
             android:name=".activity.loginandout.LoginActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="landscape"
@@ -176,7 +182,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </receiver>
-        <service android:name=".service.TimeService"/>
+        <service android:name=".service.TimeService" />
 
 
     </application>
