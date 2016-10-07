@@ -154,7 +154,6 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         HashMap<String, Object> values = new HashMap<>();
         values.put("donorId", identityCardEntity.getIdcardno());
         values.put("locationId", locationId);
-        MyLog.e(TAG, "locationId:" + plasmaMachineEntity.getLocationID());
         values.put("name", identityCardEntity.getName());
         values.put("gender", identityCardEntity.getSex());
         values.put("nationality", identityCardEntity.getNation());
@@ -163,6 +162,7 @@ public class SelectPlasmaMachineResultActivity extends BaseActivity implements O
         values.put("day", identityCardEntity.getDay());
         values.put("address", identityCardEntity.getAddr());
         values.put("face", BitmapUtils.bitmapToBase64(identityCardEntity.getPhotoBmp()));
+//        values.put("type",identityCardEntity.getType());
         retcmd.setValues(values);
     }
 

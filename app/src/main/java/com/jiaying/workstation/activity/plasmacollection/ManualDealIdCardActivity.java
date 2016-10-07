@@ -70,7 +70,7 @@ public class ManualDealIdCardActivity extends BaseActivity {
         card.setDay(null);
         card.setIdcardno(idCardNO);
         card.setPhotoBmp(null);
-        card.setType(type);
+//        card.setType(type);
         Intent it = new Intent(ManualDealIdCardActivity.this, ShowDonorInfoActivity.class);
         startActivity(it);
         finish();

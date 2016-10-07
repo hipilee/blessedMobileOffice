@@ -180,7 +180,7 @@ public class LdIdReader implements IidReader {
             card.setDay(LDAPI.idcard.birthday.substring(6, 8));
             card.setIdcardno(LDAPI.idcard.idcardno);
             card.setPhotoBmp(ZAZAPI.getPhotoBmp());
-            card.setType("normal");
+//            card.setType("normal");
             onIdReadCallback.onRead(card);
         }
     }

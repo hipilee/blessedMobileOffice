@@ -20,7 +20,7 @@ public class IdentityCardEntity implements Serializable {
     private String idcardno;
     private String grantdept;
     private Bitmap photoBmp;
-    private String type;
+//    private String type;
 
     private IdentityCardEntity(){}
     private static IdentityCardEntity identityCardEntity=null;
@@ -33,13 +33,13 @@ public class IdentityCardEntity implements Serializable {
             return identityCardEntity;
         }
     }
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
+//    public String getType() {
+//        return type;
+//    }
+//
+//    public void setType(String type) {
+//        this.type = type;
+//    }
 
     public String getName() {
         return name;
