@@ -41,18 +41,16 @@ public class LoginActivity extends BaseActivity {
     private NurseAdapter mAdapter;
     private List<NurseEntity> mList;
     private DealFlag login_deal_flag;
-
     private ImageView iv_logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        login_deal_flag = new DealFlag();
     }
 
     @Override
     public void initVariables() {
-
+        login_deal_flag = new DealFlag();
     }
 
     @Override
@@ -117,12 +115,31 @@ public class LoginActivity extends BaseActivity {
                 ToastUtils.showToast(LoginActivity.this, R.string.http_req_fail);
             }
         });
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         login_deal_flag.reset();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

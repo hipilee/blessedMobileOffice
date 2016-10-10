@@ -1,6 +1,8 @@
 package com.jiaying.workstation.net.serveraddress;
 
 
+import android.util.Log;
+
 import com.jiaying.workstation.db.IdataPreference;
 
 /**
@@ -27,6 +29,9 @@ public class SignalServer extends AbstractServer {
 
     @Override
     public String getIp() {
+        if(idataPreference == null){
+            Log.e("error","idata is null");
+        }
         return idataPreference.readStr("signal_server_ip");
     }
 

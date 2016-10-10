@@ -101,17 +101,17 @@ public class LdFingerprintReader implements IfingerprintReader {
             char[] pPassword = new char[4];
 
             //给指纹和身份证上电
+            wait2sec();
             za_finger.finger_power_on();
             za_finger.card_power_on();
 
-            wait2sec();
-            int status = 0;
+
+            int status;
 
             if (1 == usborcomtype) {
                 LongDunD8800_CheckEuq();
 
                 status = a6.ZAZOpenDeviceEx(-1, defDeviceType, defiCom, defiBaud, 0, 0);
-
                 if (status == 1 && a6.ZAZVfyPwd(DEV_ADDR, pPassword) == 0) {
                     status = 1;
                 } else {

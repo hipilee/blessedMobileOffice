@@ -34,7 +34,6 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -48,13 +47,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.plasmacollection.ManualDealIdCardActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
-
         <activity
             android:name=".activity.loginandout.LoginActivity"
             android:label="@string/title_activity_main"
@@ -69,14 +66,13 @@
             android:name=".activity.sensor.IdentityCardActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"></activity>
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
         <activity
             android:name=".activity.BloodPlasmaMachineForNurseActivity"
             android:label="@string/title_activity_pulp_machine_for_nurse"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
         <activity
-
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
@@ -161,7 +157,6 @@
             android:label="@string/title_activity_pulp_machine_select_result"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
-
         <activity
             android:name=".activity.plasmacollection.ShowDonorInfoActivity"
             android:label="审核结果"
@@ -179,11 +174,12 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </receiver>
-        <service android:name=".service.TimeService" />
 
+        <service android:name=".service.TimeService" />
 
     </application>
 

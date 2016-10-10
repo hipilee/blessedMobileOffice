@@ -1,5 +1,7 @@
 package com.jiaying.workstation.utils;
 
+import android.util.Log;
+
 import com.jiaying.workstation.net.serveraddress.SignalServer;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -21,7 +23,9 @@ public class ApiClient {
 
     public static void get(String method, AsyncHttpResponseHandler res)    //用一个完整url获取一个string对象
     {
+        Log.e("error","前" +API_SERVER);
         client.get(API_SERVER + method, res);
+        Log.e("error", "后");
     }
 
     public static void get(String method, RequestParams params, AsyncHttpResponseHandler res)   //url里面带参数

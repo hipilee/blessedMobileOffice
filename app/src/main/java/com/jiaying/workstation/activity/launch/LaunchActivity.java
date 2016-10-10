@@ -1,6 +1,5 @@
 package com.jiaying.workstation.activity.launch;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
@@ -9,11 +8,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.softfan.dataCenter.DataCenterClientService;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.jiaying.workstation.R;
 
+import com.jiaying.workstation.activity.BaseActivity;
 import com.jiaying.workstation.activity.MainActivity;
 import com.jiaying.workstation.activity.ServerSettingActivity;
 import com.jiaying.workstation.activity.loginandout.LoginActivity;
@@ -22,7 +21,6 @@ import com.jiaying.workstation.activity.plasmacollection.Res;
 import com.jiaying.workstation.app.MobileofficeApp;
 import com.jiaying.workstation.db.DataPreference;
 import com.jiaying.workstation.entity.DeviceEntity;
-import com.jiaying.workstation.entity.NurseEntity;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
 import com.jiaying.workstation.entity.ServerTime;
 import com.jiaying.workstation.net.serveraddress.LogServer;
@@ -44,7 +42,7 @@ import java.util.Observer;
 /**
  * 启动页面，自动连接网络，连接上网络后，连接服务器，得到时间同步信号后跳转到护士登录界面
  */
-public class LaunchActivity extends Activity {
+public class LaunchActivity extends BaseActivity {
     private static final String TAG = "LaunchActivity";
     public static DataCenterClientService clientService = null;
     private TimeHandlerObserver timeHandlerObserver;
@@ -54,38 +52,39 @@ public class LaunchActivity extends Activity {
     private static final int MSG_SYNC_TIME = 1001;
     private static final int MSG_SYNC_TIME_OUT = 1002;
     private static final int SYNC_TIME_OUT = 60 * 1000;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            MyLog.e(TAG, "sync time");
-            if (msg.what == MSG_SYNC_TIME) {
-                //连接网络成功后
-                // 1.http请求设备状态
-                // 2.连接物联网协议服务器,
-                // 3.同时检测连接物联网协议是否超时
-                loadData();
-                connectTcpIpServer();
-                checkSyncTimeOut();
-            } else if (msg.what == MSG_SYNC_TIME_OUT) {
-                //
-                MyLog.e(TAG, "sync time out");
-                if (!isFinishing()) {
-                    LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, ServerSettingActivity.class));
-                    finish();
-                }
-            }
-        }
-    };
+    private Handler mHandler = new TimeSynHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_launch);
+    }
+
+    @Override
+    public void initVariables() {
         MobileofficeApp app = (MobileofficeApp) getApplication();
         app.initCrash();
         initDdataPreference();
+    }
+
+    @Override
+    public void initView() {
+        setContentView(R.layout.activity_launch);
+    }
+
+    @Override
+    public void loadData() {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         autoWifiConnect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
     }
 
     private void initDdataPreference() {
@@ -98,19 +97,7 @@ public class LaunchActivity extends Activity {
         DeviceEntity.getInstance().setDataPreference(new DataPreference(getApplicationContext()));
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
-    }
-//检测等待时间信号是否超时
-
+    //检测等待时间信号是否超时
     private void checkSyncTimeOut() {
         SyncTimeoutThread syncTimeoutThread = new SyncTimeoutThread();
         syncTimeoutThread.start();
@@ -152,22 +139,10 @@ public class LaunchActivity extends Activity {
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
             } else {
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
+                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
             }
         }
         finish();
-    }
-
-
-    //连服务器
-    private void connectTcpIpServer() {
-        observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
-        resContext = new ResContext();
-        resContext.open();
-        timeHandlerObserver = new TimeHandlerObserver();
-        ObservableZXDCSignalListenerThread.addObserver(timeHandlerObserver);
-        timeRes = new TimeRes();
-        resContext.setCurState(timeRes);
-        observableZXDCSignalListenerThread.start();
     }
 
     private class ConnectWifiThread extends Thread {
@@ -187,6 +162,8 @@ public class LaunchActivity extends Activity {
         @Override
         public void run() {
             super.run();
+            //无论何种情况都先关闭wifi
+            wifiAdmin.closeWifi();
             while (true) {
                 //判断wifi是否已经打开
                 if (wifiAdmin.checkState() == WifiManager.WIFI_STATE_ENABLED) {
@@ -195,6 +172,7 @@ public class LaunchActivity extends Activity {
                     //判断wifi是否已经连接上
                     MyLog.e(TAG, "wifiIsOk：" + wifiIsOk);
                     if (wifiIsOk) {
+                        // wifi打开后，并和制定的wifi连上后，连接服务器
                         mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 0);
                         break;
                     }
@@ -210,6 +188,40 @@ public class LaunchActivity extends Activity {
             }
         }
 
+    }
+
+    private class TimeSynHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            MyLog.e(TAG, "sync time");
+            if (msg.what == MSG_SYNC_TIME) {
+                //连接网络成功后
+                // 1.http请求设备状态
+                // 2.连接物联网协议服务器,
+                // 3.同时检测连接物联网协议是否超时
+
+                connectTcpIpServer();
+                checkSyncTimeOut();
+            } else if (msg.what == MSG_SYNC_TIME_OUT) {
+                if (!isFinishing()) {
+                    LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, ServerSettingActivity.class));
+                    finish();
+                }
+            }
+        }
+    }
+
+    //连服务器
+    private void connectTcpIpServer() {
+        observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
+        resContext = new ResContext();
+        resContext.open();
+        timeHandlerObserver = new TimeHandlerObserver();
+        ObservableZXDCSignalListenerThread.addObserver(timeHandlerObserver);
+        timeRes = new TimeRes();
+        resContext.setCurState(timeRes);
+        observableZXDCSignalListenerThread.start();
     }
 
     private void startTimeService() {
@@ -229,7 +241,6 @@ public class LaunchActivity extends Activity {
                     resContext.handle((Res) msg.obj);
                     break;
             }
-
         }
 
         @Override
@@ -238,7 +249,6 @@ public class LaunchActivity extends Activity {
             Message msg = Message.obtain();
             msg.obj = data;
             this.sendMessage(msg);
-
         }
     }
 
@@ -249,12 +259,11 @@ public class LaunchActivity extends Activity {
             switch (res) {
                 case TIMESTAMP:
                     resContext.setCurState(timeRes);
+                    loadPlasmaMachineMsg();
                     startTimeService();
-                    jumpActivity();
+
                     break;
-
             }
-
         }
     }
 
@@ -306,7 +315,7 @@ public class LaunchActivity extends Activity {
         MobileofficeApp.setPlasmaMachineEntityList(plasmaMachineEntityList);
     }
 
-    private void loadData() {
+    private void loadPlasmaMachineMsg() {
         MyLog.e(TAG, "send locations request");
         ApiClient.get("locations", new AsyncHttpResponseHandler() {
             @Override
@@ -322,7 +331,9 @@ public class LaunchActivity extends Activity {
                             getLocalTempPlasmaMachineList();
                         }
                     }
+                    jumpActivity();
                 }
+                jumpActivity();
             }
 
             @Override
@@ -330,6 +341,7 @@ public class LaunchActivity extends Activity {
                 MyLog.e(TAG, "locations result fail reason:" + throwable.toString());
                 getLocalTempPlasmaMachineList();
                 ToastUtils.showToast(LaunchActivity.this, R.string.http_req_fail);
+                jumpActivity();
             }
         });
     }
