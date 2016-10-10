@@ -200,7 +200,7 @@ public class LaunchActivity extends BaseActivity {
                 // 1.http请求设备状态
                 // 2.连接物联网协议服务器,
                 // 3.同时检测连接物联网协议是否超时
-
+                loadPlasmaMachineMsg();
                 connectTcpIpServer();
                 checkSyncTimeOut();
             } else if (msg.what == MSG_SYNC_TIME_OUT) {
@@ -259,9 +259,8 @@ public class LaunchActivity extends BaseActivity {
             switch (res) {
                 case TIMESTAMP:
                     resContext.setCurState(timeRes);
-                    loadPlasmaMachineMsg();
                     startTimeService();
-
+                    jumpActivity();
                     break;
             }
         }
@@ -331,9 +330,9 @@ public class LaunchActivity extends BaseActivity {
                             getLocalTempPlasmaMachineList();
                         }
                     }
-                    jumpActivity();
+
                 }
-                jumpActivity();
+
             }
 
             @Override
@@ -341,7 +340,7 @@ public class LaunchActivity extends BaseActivity {
                 MyLog.e(TAG, "locations result fail reason:" + throwable.toString());
                 getLocalTempPlasmaMachineList();
                 ToastUtils.showToast(LaunchActivity.this, R.string.http_req_fail);
-                jumpActivity();
+
             }
         });
     }
