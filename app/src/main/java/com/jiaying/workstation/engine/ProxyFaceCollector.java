@@ -41,6 +41,4 @@ public class ProxyFaceCollector implements IfaceCollector {
     public int open() {
         return ifaceCollector.open();
     }
-
-
 }

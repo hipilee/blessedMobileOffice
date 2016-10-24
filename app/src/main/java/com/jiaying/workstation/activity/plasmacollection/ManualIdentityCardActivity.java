@@ -9,6 +9,7 @@ import android.widget.EditText;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.entity.IdentityCardEntity;
 import com.jiaying.workstation.utils.SetTopView;
@@ -76,7 +77,7 @@ public class ManualIdentityCardActivity extends BaseActivity {
         card.setIdcardno(idCardNO);
         card.setPhotoBmp(null);
 //        card.setType(type);
-        Intent itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, ShowDonorInfoActivity.class);
+        Intent itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, FaceCollectionActivity.class);
         itShowDonorInfoAct.putExtra(IntentExtra.EXTRA_TYPE,source);
         startActivity(itShowDonorInfoAct);
         finish();
