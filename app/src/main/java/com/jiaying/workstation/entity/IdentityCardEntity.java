@@ -22,13 +22,15 @@ public class IdentityCardEntity implements Serializable {
     private Bitmap photoBmp;
 //    private String type;
 
-    private IdentityCardEntity(){}
-    private static IdentityCardEntity identityCardEntity=null;
-    public synchronized static IdentityCardEntity getIntance(){
-        if(identityCardEntity != null){
+    private IdentityCardEntity() {
+    }
+
+    private static IdentityCardEntity identityCardEntity = null;
+
+    public synchronized static IdentityCardEntity getIntance() {
+        if (identityCardEntity != null) {
             return identityCardEntity;
-        }
-        else{
+        } else {
             identityCardEntity = new IdentityCardEntity();
             return identityCardEntity;
         }
@@ -42,6 +44,8 @@ public class IdentityCardEntity implements Serializable {
 //    }
 
     public String getName() {
+        if (name == null)
+            name = "";
         return name;
     }
 
@@ -66,6 +70,8 @@ public class IdentityCardEntity implements Serializable {
     }
 
     public String getYear() {
+        if (year == null)
+            year = "    ";
         return year;
     }
 
@@ -74,6 +80,8 @@ public class IdentityCardEntity implements Serializable {
     }
 
     public String getMonth() {
+        if (month == null)
+            month = "  ";
         return month;
     }
 
@@ -82,6 +90,8 @@ public class IdentityCardEntity implements Serializable {
     }
 
     public String getDay() {
+        if (day == null)
+            day = "  ";
         return day;
     }
 

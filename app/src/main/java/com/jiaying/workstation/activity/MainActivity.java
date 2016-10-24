@@ -37,13 +37,14 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, new BloodPlasmaCollectionFragment()).commit();
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, new RegisterFragment()).commit();
 
-        ((RadioButton)findViewById(R.id.btn_1)).setVisibility(View.GONE);
-        ((RadioButton)findViewById(R.id.btn_2)).setVisibility(View.GONE);
-        ((RadioButton)findViewById(R.id.btn_3)).setVisibility(View.GONE);
-        ((RadioButton)findViewById(R.id.btn_5)).setVisibility(View.GONE);
-        ((RadioButton)findViewById(R.id.btn_6)).setVisibility(View.GONE);
+        ((RadioButton) findViewById(R.id.btn_1)).setVisibility(View.GONE);
+        ((RadioButton) findViewById(R.id.btn_2)).setVisibility(View.VISIBLE);
+        ((RadioButton) findViewById(R.id.btn_3)).setVisibility(View.GONE);
+        ((RadioButton) findViewById(R.id.btn_4)).setVisibility(View.VISIBLE);
+        ((RadioButton) findViewById(R.id.btn_5)).setVisibility(View.GONE);
+        ((RadioButton) findViewById(R.id.btn_6)).setVisibility(View.GONE);
     }
 
     @Override
@@ -95,11 +96,12 @@ public class MainActivity extends BaseActivity {
         //连服务器
 //        connectTcpIpServer();
     }
+
     //退出
     private void loginOut() {
         MobileofficeApp.clearPlasmaMachineEntityList();
         DataPreference preference = new DataPreference(MainActivity.this);
-        preference.writeStr("nurse_id","wrong");
+        preference.writeStr("nurse_id", "wrong");
         preference.commit();
     }
 

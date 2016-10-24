@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSON;
 import com.jiaying.workstation.R;
 
 import com.jiaying.workstation.activity.BaseActivity;
-import com.jiaying.workstation.activity.MainActivity;
 import com.jiaying.workstation.activity.ServerSettingActivity;
 import com.jiaying.workstation.activity.loginandout.LoginActivity;
 import com.jiaying.workstation.activity.plasmacollection.Res;
@@ -28,7 +27,7 @@ import com.jiaying.workstation.net.serveraddress.SignalServer;
 import com.jiaying.workstation.net.serveraddress.VideoServer;
 import com.jiaying.workstation.service.TimeService;
 import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
-import com.jiaying.workstation.utils.ApiClient;
+import com.jiaying.workstation.net.http.ApiClient;
 import com.jiaying.workstation.utils.MyLog;
 import com.jiaying.workstation.utils.ToastUtils;
 import com.jiaying.workstation.utils.WifiAdmin;
@@ -84,7 +83,8 @@ public class LaunchActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
+        if (observableZXDCSignalListenerThread != null && timeHandlerObserver != null)
+            observableZXDCSignalListenerThread.deleteObserver(timeHandlerObserver);
     }
 
     private void initDdataPreference() {
@@ -138,7 +138,7 @@ public class LaunchActivity extends BaseActivity {
             if (loginedTime == -1 || ((currentTime - loginedTime >= 60 * 1000))) {
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
             } else {
-                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
+//                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
                 LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
             }
         }
@@ -259,6 +259,7 @@ public class LaunchActivity extends BaseActivity {
             switch (res) {
                 case TIMESTAMP:
                     resContext.setCurState(timeRes);
+
                     startTimeService();
                     jumpActivity();
                     break;
@@ -316,12 +317,12 @@ public class LaunchActivity extends BaseActivity {
 
     private void loadPlasmaMachineMsg() {
         MyLog.e(TAG, "send locations request");
-        ApiClient.get("locations", new AsyncHttpResponseHandler() {
+        ApiClient.get("users", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
                 if (bytes != null && bytes.length > 0) {
                     String result = new String(bytes);
-                    MyLog.e(TAG, "locations result:" + result);
+                    MyLog.e(TAG, "locations result success result:" + result);
                     if (!TextUtils.isEmpty(result)) {
                         List<PlasmaMachineEntity> plasmaMachineEntityList = JSON.parseArray(result, PlasmaMachineEntity.class);
                         if (plasmaMachineEntityList != null) {
@@ -332,7 +333,6 @@ public class LaunchActivity extends BaseActivity {
                     }
 
                 }
-
             }
 
             @Override
@@ -340,7 +340,6 @@ public class LaunchActivity extends BaseActivity {
                 MyLog.e(TAG, "locations result fail reason:" + throwable.toString());
                 getLocalTempPlasmaMachineList();
                 ToastUtils.showToast(LaunchActivity.this, R.string.http_req_fail);
-
             }
         });
     }

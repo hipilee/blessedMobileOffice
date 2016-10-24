@@ -79,6 +79,7 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
     }
 
     public static void deleteObserver(Observer observer) {
+        if(observer!=null)
         observableHint.deleteObserver(observer);
     }
 

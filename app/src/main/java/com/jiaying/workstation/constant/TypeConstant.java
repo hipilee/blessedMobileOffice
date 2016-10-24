@@ -6,14 +6,20 @@ package com.jiaying.workstation.constant;
  * 功能：类型常量
  */
 public class TypeConstant {
-    //登陆
-    public static final int TYPE_LOG = 0;
+
+
     //登记
     public static final int  TYPE_REG = 1;
+
     //采浆
     public static final int  TYPE_BLOODPLASMACOLLECTION = 2;
+
     //体检
     public static final int TYPE_PHYSICAL_EXAM = 3;
+
+    //登陆
+    public static final int TYPE_LOG = 4;
+
     //查询
     public static final int TYPE_SEARCH = 5;
     //体检完成后，献浆员打指纹

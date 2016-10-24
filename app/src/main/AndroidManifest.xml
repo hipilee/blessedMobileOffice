@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.plasmacollection.ManualDealIdCardActivity"
+            android:name=".activity.plasmacollection.ManualIdentityCardActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />

@@ -14,18 +14,18 @@ import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
 import com.jiaying.workstation.activity.MainActivity;
 import com.jiaying.workstation.activity.ServerSettingActivity;
-import com.jiaying.workstation.activity.sensor.FingerprintActivity;
 import com.jiaying.workstation.adapter.NurseAdapter;
 import com.jiaying.workstation.db.DataPreference;
 import com.jiaying.workstation.entity.NurseEntity;
-import com.jiaying.workstation.thread.ObservableZXDCSignalListenerThread;
-import com.jiaying.workstation.utils.ApiClient;
+import com.jiaying.workstation.net.http.ApiClient;
 import com.jiaying.workstation.utils.DealFlag;
 import com.jiaying.workstation.utils.MyLog;
 import com.jiaying.workstation.utils.SetTopView;
 import com.jiaying.workstation.utils.ToastUtils;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+
+import org.apache.http.Header;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +50,7 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initVariables() {
+        //该按钮用于防双击
         login_deal_flag = new DealFlag();
     }
 
@@ -70,7 +71,7 @@ public class LoginActivity extends BaseActivity {
         });
 
         mGridView = (GridView) findViewById(R.id.gridview);
-        mList = new ArrayList<NurseEntity>();
+        mList = new ArrayList<>();
         mAdapter = new NurseAdapter(mList, this);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -79,10 +80,11 @@ public class LoginActivity extends BaseActivity {
                 //选择护士后就指纹认证
                 if (login_deal_flag.isFirst()) {
                     DataPreference preference = new DataPreference(LoginActivity.this);
-                    preference.writeStr("nurse_id",mList.get(position).getId());
-                    preference.writeLong("login_time",System.currentTimeMillis());
+                    preference.writeStr("nurse_id", mList.get(position).getId());
+                    preference.writeLong("login_time", System.currentTimeMillis());
                     preference.commit();
-                    Intent it = new Intent(LoginActivity.this, FingerprintActivity.class);
+//                    Intent it = new Intent(LoginActivity.this, FingerprintActivity.class);
+                    Intent it = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(it);
 
                 }
@@ -92,29 +94,7 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void loadData() {
-
-        ApiClient.get("users", new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
-                if (bytes != null && bytes.length > 0) {
-                    String result = new String(bytes);
-                    MyLog.e(TAG, "users result:" + result);
-                    if (!TextUtils.isEmpty(result)) {
-                        List<NurseEntity> nurseEntityList = JSON.parseArray(result, NurseEntity.class);
-                        if (nurseEntityList != null) {
-                            mList.addAll(nurseEntityList);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(int i, org.apache.http.Header[] headers, byte[] bytes, Throwable throwable) {
-                MyLog.e(TAG, "users result fail reason:" + throwable.toString());
-                ToastUtils.showToast(LoginActivity.this, R.string.http_req_fail);
-            }
-        });
+        ApiClient.get("users", new LoadNurseInfoHandler());
     }
 
     @Override
@@ -141,5 +121,27 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    private class LoadNurseInfoHandler extends AsyncHttpResponseHandler {
+        @Override
+        public void onSuccess(int i, Header[] headers, byte[] bytes) {
+            if (bytes != null && bytes.length > 0) {
+                String result = new String(bytes);
+                if (!TextUtils.isEmpty(result)) {
+                    List<NurseEntity> nurseEntityList = JSON.parseArray(result, NurseEntity.class);
+                    if (nurseEntityList != null) {
+                        mList.addAll(nurseEntityList);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
+            MyLog.e(TAG, "users result fail reason:" + throwable.toString());
+            ToastUtils.showToast(LoginActivity.this, R.string.http_req_fail);
+        }
     }
 }

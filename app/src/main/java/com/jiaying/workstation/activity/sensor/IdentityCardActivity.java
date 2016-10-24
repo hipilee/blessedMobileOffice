@@ -11,16 +11,12 @@ import android.widget.Toast;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
-import com.jiaying.workstation.activity.loginandout.LoginActivity;
-import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
 import com.jiaying.workstation.activity.plasmacollection.ShowDonorInfoActivity;
-import com.jiaying.workstation.activity.search.SearchResultActivity;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.engine.LdIdReader;
 import com.jiaying.workstation.engine.ProxyIdReader;
 import com.jiaying.workstation.entity.IdentityCardEntity;
-import com.jiaying.workstation.fragment.BloodPlasmaCollectionFragment;
 import com.jiaying.workstation.interfaces.IidReader;
 import com.jiaying.workstation.utils.CountDownTimerUtil;
 import com.jiaying.workstation.utils.MyLog;
@@ -41,6 +37,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     private CountDownTimerUtil countDownTimerUtil;
     private IidReader iidReader;
     public static TextToSpeech mTts;
+    private int source;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +49,8 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
 
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
+
+        source = getIntent().getIntExtra(IntentExtra.EXTRA_TYPE, 0);
 
         //  身份证读取预备
         iidReader = LdIdReader.getInstance(this);
@@ -108,6 +107,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
             donorName = identityCardEntity.getName();
             avtar = identityCardEntity.getPhotoBmp();
             idCardNO = identityCardEntity.getIdcardno();
+
             //认证通过后跳到指纹界面
             new Handler().postDelayed(new runnable(), 10);
 
@@ -132,17 +132,34 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     private class runnable implements Runnable {
         @Override
         public void run() {
-            goToSelectionMachine();
+            switch (source) {
+                case TypeConstant.TYPE_REG:
+                    goToFaceCollection();
+                    break;
+                case TypeConstant.TYPE_BLOODPLASMACOLLECTION:
+                    goToShowDonorInfo();
+                    break;
+            }
         }
     }
 
-    private void goToSelectionMachine() {
+    private void goToShowDonorInfo() {
         Intent it;
         it = new Intent(IdentityCardActivity.this, ShowDonorInfoActivity.class);
+
+        it.putExtra(IntentExtra.EXTRA_TYPE, source);
         it.putExtra("donorName", donorName);
         it.putExtra("avatar", avtar);
         it.putExtra("idCardNO", idCardNO);
 
+        startActivity(it);
+        finish();
+    }
+
+    private void goToFaceCollection() {
+        Intent it;
+        it = new Intent(IdentityCardActivity.this, FaceCollectionActivity.class);
+        it.putExtra(IntentExtra.EXTRA_TYPE, source);
         startActivity(it);
         finish();
     }

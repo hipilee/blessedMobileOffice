@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.jiaying.workstation.R;
-import com.jiaying.workstation.activity.plasmacollection.ManualDealIdCardActivity;
-import com.jiaying.workstation.activity.plasmacollection.SelectPlasmaMachineActivity;
-import com.jiaying.workstation.activity.sensor.FingerprintActivity;
+import com.jiaying.workstation.activity.plasmacollection.ManualIdentityCardActivity;
 import com.jiaying.workstation.activity.sensor.IdentityCardActivity;
+import com.jiaying.workstation.constant.IntentExtra;
+import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.utils.DealFlag;
 
 /**
@@ -63,20 +63,26 @@ public class BloodPlasmaCollectionFragment extends Fragment {
                 switch (v.getId()) {
                     case R.id.btn_collection:
                         it = new Intent(getActivity(), IdentityCardActivity.class);
-                        it.putExtra("type","normal");
+                        it.putExtra("type", "normal");
+                        it.putExtra(IntentExtra.EXTRA_TYPE, TypeConstant.TYPE_BLOODPLASMACOLLECTION);
                         break;
+
                     case R.id.btn_idcard_forget:
-                        it = new Intent(getActivity(), ManualDealIdCardActivity.class);
-                        it.putExtra("type","forgot");
+                        it = new Intent(getActivity(), ManualIdentityCardActivity.class);
+                        it.putExtra(IntentExtra.EXTRA_TYPE, TypeConstant.TYPE_BLOODPLASMACOLLECTION);
+                        it.putExtra("type", "forgot");
                         break;
+
                     case R.id.btn_idcard_broken:
-                        it = new Intent(getActivity(), ManualDealIdCardActivity.class);
-                        it.putExtra("type","broken");
+                        it = new Intent(getActivity(), ManualIdentityCardActivity.class);
+                        it.putExtra(IntentExtra.EXTRA_TYPE, TypeConstant.TYPE_BLOODPLASMACOLLECTION);
+                        it.putExtra("type", "broken");
                         break;
+
                     default:
                         break;
                 }
-                if(it!=null){
+                if (it != null) {
                     startActivity(it);
                 }
 

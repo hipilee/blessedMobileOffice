@@ -56,12 +56,12 @@ public class SelectPlasmaMachineActivity extends BaseActivity {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent it = new Intent(SelectPlasmaMachineActivity.this, FingerprintActivity.class);
-                it.putExtra("source", TypeConstant.TYPE_SELECT_MACHINE);
-                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, mList.get(position));
-
-//                Intent it = new Intent(SelectPlasmaMachineActivity.this, SelectPlasmaMachineResultActivity.class);
+//                Intent it = new Intent(SelectPlasmaMachineActivity.this, FingerprintActivity.class);
+//                it.putExtra("source", TypeConstant.TYPE_SELECT_MACHINE);
 //                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, mList.get(position));
+
+                Intent it = new Intent(SelectPlasmaMachineActivity.this, SelectPlasmaMachineResultActivity.class);
+                it.putExtra(IntentExtra.EXTRA_PLASMAMACHINE, mList.get(position));
                 startActivity(it);
                 SelectPlasmaMachineActivity.this.finish();
             }

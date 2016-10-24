@@ -11,12 +11,16 @@ import android.widget.TextView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
+import com.jiaying.workstation.constant.IntentExtra;
+import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.entity.IdentityCardEntity;
 import com.jiaying.workstation.utils.SetTopView;
 
 public class ShowDonorInfoActivity extends BaseActivity {
     private IdentityCardEntity identityCardEntity;
     private Button btn_sure;
+    private int source;
 
 
     @Override
@@ -27,6 +31,7 @@ public class ShowDonorInfoActivity extends BaseActivity {
     @Override
     public void initVariables() {
         identityCardEntity = IdentityCardEntity.getIntance();
+        source = getIntent().getIntExtra(IntentExtra.EXTRA_TYPE, 0);
     }
 
     @Override
@@ -51,11 +56,25 @@ public class ShowDonorInfoActivity extends BaseActivity {
         btn_sure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToSelectMachineAct();
+                switch (source) {
+                    case TypeConstant.TYPE_REG:
+                        goToFaceCollectionAct();
+                        break;
+
+                    case TypeConstant.TYPE_BLOODPLASMACOLLECTION:
+                        goToSelectMachineAct();
+                        break;
+                }
             }
 
             private void goToSelectMachineAct() {
                 Intent intent = new Intent(ShowDonorInfoActivity.this, SelectPlasmaMachineActivity.class);
+                finish();
+                startActivity(intent);
+            }
+
+            private void goToFaceCollectionAct() {
+                Intent intent = new Intent(ShowDonorInfoActivity.this, FaceCollectionActivity.class);
                 finish();
                 startActivity(intent);
             }
@@ -74,7 +93,7 @@ public class ShowDonorInfoActivity extends BaseActivity {
         tv_nation.setText(identityCardEntity.getNation());
 
         TextView tv_birthday = (TextView) this.findViewById(R.id.tv_birthday);
-        String strBirthday = identityCardEntity.getYear() + "年" + identityCardEntity.getMonth() + "月" + identityCardEntity.getDay() + "日";
+        String strBirthday = identityCardEntity.getYear() + " 年 " + identityCardEntity.getMonth() + " 月 " + identityCardEntity.getDay() + " 日 ";
         tv_birthday.setText(strBirthday);
 
         TextView tv_address = (TextView) this.findViewById(R.id.tv_address);

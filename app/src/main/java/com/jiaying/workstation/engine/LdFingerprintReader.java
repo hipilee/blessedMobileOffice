@@ -101,11 +101,11 @@ public class LdFingerprintReader implements IfingerprintReader {
             char[] pPassword = new char[4];
 
             //给指纹和身份证上电
-            wait2sec();
-            za_finger.finger_power_on();
             za_finger.card_power_on();
+            za_finger.finger_power_on();
 
-
+            //给指纹设备上电后一定要等待2秒后才能初始化指纹，模块
+            wait2sec();
             int status;
 
             if (1 == usborcomtype) {
@@ -118,8 +118,8 @@ public class LdFingerprintReader implements IfingerprintReader {
                     //打开失败要重置
                     za_finger.hub_rest(2000);
                     a6.ZAZCloseDeviceEx();
-                    za_finger.finger_power_off();
                     za_finger.card_power_off();
+                    za_finger.finger_power_off();
                     status = 0;
                 }
             } else {
@@ -171,41 +171,24 @@ public class LdFingerprintReader implements IfingerprintReader {
                 return;
             }
 
-            int nRet = 0;
-            Log.e(tag, "run()");
-            nRet = a6.ZAZGetImage(DEV_ADDR);
+            int nRet = a6.ZAZGetImage(DEV_ADDR);
             if (nRet == 0) {
-                Log.e(tag, "run()" + 1.1);
                 int[] len = {0, 0};
-                Log.e(tag, "run()" + 1.2);
                 char[] Image = new char[256 * 288];
-                Log.e(tag, "run()" + 1.3);
 //                char[] Image = new char[256 * 360];
                 a6.ZAZUpImage(DEV_ADDR, Image, len);
-                Log.e(tag, "run()" + 1.4);
                 String str = "/mnt/sdcard/test.bmp";
-                Log.e(tag, "run()" + 1.5);
                 a6.ZAZImgData2BMP(Image, str);
-                Log.e(tag, "run()" + 1.6);
                 Bitmap bmpDefaultPic;
-                Log.e(tag, "run()" + 1.7);
                 bmpDefaultPic = BitmapFactory.decodeFile(str, null);
-                Log.e(tag, "run()" + 1.8);
                 onFingerprintReadCallback.onFingerPrintInfo(bmpDefaultPic);
-                Log.e(tag, "run()" + 1.9);
             } else if (nRet == a6.PS_NO_FINGER) {
-                Log.e(tag, "run()" + 2.1);
                 objHandler_fp.postDelayed(fpTasks, 100);
-                Log.e(tag, "run()" + 2.2);
             } else if (nRet == a6.PS_GET_IMG_ERR) {
-                Log.e(tag, "run()" + 3.1);
                 objHandler_fp.postDelayed(fpTasks, 100);
-                Log.e(tag, "run()" + 3.2);
                 return;
             } else {
-                Log.e(tag, "run()" + 4.1);
                 onFingerprintReadCallback.onFingerPrintInfo(null);
-                Log.e(tag, "run()" + 4.2);
                 return;
             }
         }
