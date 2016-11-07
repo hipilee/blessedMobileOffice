@@ -16,7 +16,6 @@ import com.jiaying.workstation.activity.BaseActivity;
 import com.jiaying.workstation.activity.ServerSettingActivity;
 import com.jiaying.workstation.activity.loginandout.LoginActivity;
 import com.jiaying.workstation.activity.plasmacollection.Res;
-
 import com.jiaying.workstation.app.MobileofficeApp;
 import com.jiaying.workstation.db.DataPreference;
 import com.jiaying.workstation.entity.DeviceEntity;
@@ -39,15 +38,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * 启动页面，自动连接网络，连接上网络后，连接服务器，得到时间同步信号后跳转到护士登录界面
+ * 启动页面，自动连接网络，连接上网络后，连接服务器，得到时间同步信号后，获取现有设备具体信息，跳转到护士登录界面
  */
 public class LaunchActivity extends BaseActivity {
     private static final String TAG = "LaunchActivity";
-    public static DataCenterClientService clientService = null;
     private TimeHandlerObserver timeHandlerObserver;
     private ObservableZXDCSignalListenerThread observableZXDCSignalListenerThread;
     private ResContext resContext;
-    private TimeRes timeRes;
+    private WaittingForTimeRes waittingForTimeRes;
     private static final int MSG_SYNC_TIME = 1001;
     private static final int MSG_SYNC_TIME_OUT = 1002;
     private static final int SYNC_TIME_OUT = 60 * 1000;
@@ -97,6 +95,100 @@ public class LaunchActivity extends BaseActivity {
         DeviceEntity.getInstance().setDataPreference(new DataPreference(getApplicationContext()));
     }
 
+    //自动连接wifi
+    private void autoWifiConnect() {
+        ConnectWifiThread connectWifiThread = new ConnectWifiThread("JiaYing_ZXDC", "jyzxdcarm", 3, this);
+        //ConnectWifiThread connectWifiThread = new ConnectWifiThread("TP-LINK_94D10A", "85673187", 3, this);
+        connectWifiThread.start();
+    }
+
+    //连接wifi的线程
+    private class ConnectWifiThread extends Thread {
+        private boolean wifiIsOk = false;
+        private String SSID = null;
+        private String PWD = null;
+        private int TYPE = 0;
+        private WifiAdmin wifiAdmin = null;
+
+        public ConnectWifiThread(String SSID, String PWD, int TYPE, Context context) {
+            this.SSID = SSID;
+            this.PWD = PWD;
+            this.TYPE = TYPE;
+            wifiAdmin = new WifiAdmin(context);
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            //无论何种情况都先关闭wifi，有些设备关闭打开wifi的时候可能都会有弹出框提示，
+            // 这中提示是在wifi设置里面可以关闭的。
+            wifiAdmin.closeWifi();
+            while (true) {
+                //判断wifi是否已经打开
+                if (wifiAdmin.checkState() == WifiManager.WIFI_STATE_ENABLED) {
+                    //连接网络
+                    wifiIsOk = wifiAdmin.addNetwork(wifiAdmin.CreateWifiInfo(SSID, PWD, TYPE));
+                    //判断wifi是否已经连接上
+                    MyLog.e(TAG, "wifiIsOk：" + wifiIsOk);
+                    if (wifiIsOk) {
+                        // wifi打开后，并和指定的wifi连上后，连接服务器
+                        mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 0);
+                        break;
+                    }
+                } else {
+                    MyLog.e(TAG, "open wifi");
+                    wifiAdmin.openWifi();
+                }
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private class TimeSynHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            MyLog.e(TAG, "sync time");
+            if (msg.what == MSG_SYNC_TIME) {
+                //连接网络成功后
+
+                // 1.连接物联网协议服务器
+                connectTcpIpServer();
+
+                // 2.同时检测连接物联网协议是否超时，超时时间为60S
+                checkSyncTimeOut();
+            } else if (msg.what == MSG_SYNC_TIME_OUT) {
+                if (!isFinishing()) {
+                    LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, ServerSettingActivity.class));
+                    finish();
+                }
+            }
+        }
+    }
+
+    //连服务器
+    private void connectTcpIpServer() {
+        //处理和服务器通信线程
+        observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
+
+        //管理状态的上下文环境，设置当前状态为等待时间信号状态
+        resContext = new ResContext();
+        resContext.open();
+        waittingForTimeRes = new WaittingForTimeRes();
+        resContext.setCurState(waittingForTimeRes);
+
+        //观察者开始观察服务器通信线程
+        timeHandlerObserver = new TimeHandlerObserver();
+        ObservableZXDCSignalListenerThread.addObserver(timeHandlerObserver);
+
+        //服务器通信线程开始工作
+        observableZXDCSignalListenerThread.start();
+    }
+
     //检测等待时间信号是否超时
     private void checkSyncTimeOut() {
         SyncTimeoutThread syncTimeoutThread = new SyncTimeoutThread();
@@ -116,121 +208,13 @@ public class LaunchActivity extends BaseActivity {
         }
     }
 
-    //自动连接wifi
-    private void autoWifiConnect() {
-        ConnectWifiThread connectWifiThread = new ConnectWifiThread("JiaYing_ZXDC", "jyzxdcarm", 3, this);
-//        ConnectWifiThread connectWifiThread = new ConnectWifiThread("TP-LINK_94D10A", "85673187", 3, this);
-        connectWifiThread.start();
-    }
-
-    private void jumpActivity() {
-        DataPreference preference = new DataPreference(LaunchActivity.this);
-        String nurse_id = preference.readStr("nurse_id");
-        MyLog.e(TAG, "nurse_id:" + nurse_id);
-
-        if (nurse_id.equals("wrong")) {
-            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-        } else {
-            //检查登录时效
-            long loginedTime = preference.readLong("login_time");
-            long currentTime = System.currentTimeMillis();
-            MyLog.e(TAG, "loginedTime:" + loginedTime + ",currentTime:" + currentTime);
-            if (loginedTime == -1 || ((currentTime - loginedTime >= 60 * 1000))) {
-                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-            } else {
-//                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
-                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
-            }
-        }
-        finish();
-    }
-
-    private class ConnectWifiThread extends Thread {
-        private boolean wifiIsOk = false;
-        private String SSID = null;
-        private String PWD = null;
-        private int TYPE = 0;
-        private WifiAdmin wifiAdmin = null;
-
-        public ConnectWifiThread(String SSID, String PWD, int TYPE, Context context) {
-            this.SSID = SSID;
-            this.PWD = PWD;
-            this.TYPE = TYPE;
-            wifiAdmin = new WifiAdmin(context);
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            //无论何种情况都先关闭wifi
-            wifiAdmin.closeWifi();
-            while (true) {
-                //判断wifi是否已经打开
-                if (wifiAdmin.checkState() == WifiManager.WIFI_STATE_ENABLED) {
-                    //连接网络
-                    wifiIsOk = wifiAdmin.addNetwork(wifiAdmin.CreateWifiInfo(SSID, PWD, TYPE));
-                    //判断wifi是否已经连接上
-                    MyLog.e(TAG, "wifiIsOk：" + wifiIsOk);
-                    if (wifiIsOk) {
-                        // wifi打开后，并和制定的wifi连上后，连接服务器
-                        mHandler.sendEmptyMessageDelayed(MSG_SYNC_TIME, 0);
-                        break;
-                    }
-                } else {
-                    MyLog.e(TAG, "open wifi");
-                    wifiAdmin.openWifi();
-                }
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
-    private class TimeSynHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            MyLog.e(TAG, "sync time");
-            if (msg.what == MSG_SYNC_TIME) {
-                //连接网络成功后
-                // 1.http请求设备状态
-                // 2.连接物联网协议服务器,
-                // 3.同时检测连接物联网协议是否超时
-                loadPlasmaMachineMsg();
-                connectTcpIpServer();
-                checkSyncTimeOut();
-            } else if (msg.what == MSG_SYNC_TIME_OUT) {
-                if (!isFinishing()) {
-                    LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, ServerSettingActivity.class));
-                    finish();
-                }
-            }
-        }
-    }
-
-    //连服务器
-    private void connectTcpIpServer() {
-        observableZXDCSignalListenerThread = new ObservableZXDCSignalListenerThread();
-        resContext = new ResContext();
-        resContext.open();
-        timeHandlerObserver = new TimeHandlerObserver();
-        ObservableZXDCSignalListenerThread.addObserver(timeHandlerObserver);
-        timeRes = new TimeRes();
-        resContext.setCurState(timeRes);
-        observableZXDCSignalListenerThread.start();
-    }
-
     private void startTimeService() {
-        Intent it = new Intent(LaunchActivity.this, TimeService.class);
-        it.putExtra("currenttime", ServerTime.curtime);
-        startService(it);
+        Intent itLauTimeSev = new Intent(LaunchActivity.this, TimeService.class);
+        itLauTimeSev.putExtra("currenttime", ServerTime.curtime);
+        startService(itLauTimeSev);
     }
 
-
+    //TimeHandlerObserver WaittingForTimeRes ResContext State构建了观察者模式和状态模式
     private class TimeHandlerObserver extends Handler implements Observer {
         @Override
         public void handleMessage(Message msg) {
@@ -252,20 +236,38 @@ public class LaunchActivity extends BaseActivity {
         }
     }
 
-    private class TimeRes extends State {
+    private abstract class State {
+        abstract void handle(Res res);
+    }
+
+    private class WaittingForTimeRes extends State {
 
         @Override
         void handle(Res res) {
             switch (res) {
                 case TIMESTAMP:
-                    resContext.setCurState(timeRes);
+                    //转换到时间已同步状态
+                    resContext.setCurState(new NewState());
 
+                    //启动时间服务
                     startTimeService();
-                    jumpActivity();
+
+                    //载入单采机信息
+                    loadPlasmaMachineMsg();
+
                     break;
             }
         }
     }
+
+    private class NewState extends State {
+
+        @Override
+        void handle(Res res) {
+
+        }
+    }
+
 
     private class ResContext {
         private State state;
@@ -291,11 +293,8 @@ public class LaunchActivity extends BaseActivity {
         }
     }
 
-    private abstract class State {
-        abstract void handle(Res res);
-    }
 
-
+    //TimeHandlerObserver WaittingForTimeRes ResContext State构建了观察者模式和状态模式
     //模拟得到浆机状态信息,正式数据需要删除
     private void getLocalTempPlasmaMachineList() {
 
@@ -316,12 +315,14 @@ public class LaunchActivity extends BaseActivity {
     }
 
     private void loadPlasmaMachineMsg() {
-        MyLog.e(TAG, "send locations request");
-        ApiClient.get("users", new AsyncHttpResponseHandler() {
+        ApiClient.get("locations", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int i, org.apache.http.Header[] headers, byte[] bytes) {
+                //网络是通的，都是进入该流程
+                String result = new String(bytes);
+                MyLog.e(TAG, "locations result success result:" + result);
                 if (bytes != null && bytes.length > 0) {
-                    String result = new String(bytes);
+
                     MyLog.e(TAG, "locations result success result:" + result);
                     if (!TextUtils.isEmpty(result)) {
                         List<PlasmaMachineEntity> plasmaMachineEntityList = JSON.parseArray(result, PlasmaMachineEntity.class);
@@ -332,7 +333,10 @@ public class LaunchActivity extends BaseActivity {
                         }
                     }
 
+                } else {
+                    getLocalTempPlasmaMachineList();
                 }
+                jumpActivity();
             }
 
             @Override
@@ -340,7 +344,30 @@ public class LaunchActivity extends BaseActivity {
                 MyLog.e(TAG, "locations result fail reason:" + throwable.toString());
                 getLocalTempPlasmaMachineList();
                 ToastUtils.showToast(LaunchActivity.this, R.string.http_req_fail);
+                jumpActivity();
             }
         });
+    }
+
+    private void jumpActivity() {
+        DataPreference preference = new DataPreference(LaunchActivity.this);
+        String nurse_id = preference.readStr("nurse_id");
+        MyLog.e(TAG, "nurse_id:" + nurse_id);
+
+        if (nurse_id.equals("wrong")) {
+            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
+        } else {
+            //检查登录时效
+            long loginedTime = preference.readLong("login_time");
+            long currentTime = System.currentTimeMillis();
+            MyLog.e(TAG, "loginedTime:" + loginedTime + ",currentTime:" + currentTime);
+            if (loginedTime == -1 || ((currentTime - loginedTime >= 60 * 1000))) {
+                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
+            } else {
+//                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
+                LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
+            }
+        }
+        finish();
     }
 }

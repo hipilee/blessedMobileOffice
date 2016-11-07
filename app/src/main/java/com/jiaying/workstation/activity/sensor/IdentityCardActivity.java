@@ -134,7 +134,8 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
         public void run() {
             switch (source) {
                 case TypeConstant.TYPE_REG:
-                    goToFaceCollection();
+//                    goToFaceCollection();
+                    goToShowDonorInfo();
                     break;
                 case TypeConstant.TYPE_BLOODPLASMACOLLECTION:
                     goToShowDonorInfo();

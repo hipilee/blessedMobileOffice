@@ -10,7 +10,9 @@ import android.widget.EditText;
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
 import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
+import com.jiaying.workstation.activity.sensor.IdentityCardActivity;
 import com.jiaying.workstation.constant.IntentExtra;
+import com.jiaying.workstation.constant.TypeConstant;
 import com.jiaying.workstation.entity.IdentityCardEntity;
 import com.jiaying.workstation.utils.SetTopView;
 import com.jiaying.workstation.utils.ToastUtils;
@@ -77,8 +79,19 @@ public class ManualIdentityCardActivity extends BaseActivity {
         card.setIdcardno(idCardNO);
         card.setPhotoBmp(null);
 //        card.setType(type);
-        Intent itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, FaceCollectionActivity.class);
-        itShowDonorInfoAct.putExtra(IntentExtra.EXTRA_TYPE,source);
+        Intent itShowDonorInfoAct = null;
+        switch (source) {
+            case TypeConstant.TYPE_REG:
+//                itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, FaceCollectionActivity.class);
+                itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, ShowDonorInfoActivity.class);
+                break;
+            case TypeConstant.TYPE_BLOODPLASMACOLLECTION:
+//                itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, SelectPlasmaMachineActivity.class);
+                itShowDonorInfoAct = new Intent(ManualIdentityCardActivity.this, ShowDonorInfoActivity.class);
+                break;
+        }
+
+        itShowDonorInfoAct.putExtra(IntentExtra.EXTRA_TYPE, source);
         startActivity(itShowDonorInfoAct);
         finish();
     }

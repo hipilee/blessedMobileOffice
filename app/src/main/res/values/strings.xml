@@ -26,7 +26,7 @@
     <string name="title_activity_fingerprint_xj">献浆员指纹认证</string>
     <string name="title_activity_fingerprint_doc">医生（护士）指纹认证</string>
     <string name="title_activity_face_collection">人脸采集</string>
-    <string name="title_activity_register_over">登记完成（10）</string>
+    <string name="title_activity_register_over">登记情况</string>
     <string name="title_activity_physical_examing">体检中（2）</string>
     <string name="title_activity_physical_exam">体检</string>
     <string name="title_activity_physical_todo">待体检（3）</string>

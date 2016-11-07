@@ -288,8 +288,8 @@ public class LdFingerprintReader implements IfingerprintReader {
 //        byte[] tmp = {5, 6, 7};
 //        //a6.ZAZBT_rev(tmp, tmp.length);
 //        objHandler_fp.removeCallbacks(fpTasks);
-////        za_finger.finger_power_off();
-////        za_finger.card_power_off();
+        za_finger.finger_power_off();
+//        za_finger.card_power_off();
 //        int status = a6.ZAZCloseDeviceEx();
 //        return status;
         return 1;

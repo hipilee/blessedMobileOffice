@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.register.RegisterResultActivity;
 import com.jiaying.workstation.activity.sensor.FaceCollectionActivity;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
@@ -74,7 +75,7 @@ public class ShowDonorInfoActivity extends BaseActivity {
             }
 
             private void goToFaceCollectionAct() {
-                Intent intent = new Intent(ShowDonorInfoActivity.this, FaceCollectionActivity.class);
+                Intent intent = new Intent(ShowDonorInfoActivity.this, RegisterResultActivity.class);
                 finish();
                 startActivity(intent);
             }

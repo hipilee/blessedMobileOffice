@@ -83,7 +83,7 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".activity.register.RegisterOverActivity"
+            android:name=".activity.register.RegisterResultActivity"
             android:label="@string/title_activity_pulp_machine_for_nurse"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />

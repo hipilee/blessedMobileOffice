@@ -232,9 +232,9 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
     public void processMsg(DataCenterRun dataCenterRun, DataCenterTaskCmd cmd) throws DataCenterException {
         Log.e("processMsg", "cmd:" + cmd.getCmd());
         if ("zxdc_rev_confirm_donor".equals(cmd.getCmd())) {
-            notifyObservers(Res.ZXDCRES);
+            notifyObservers(Res.ALOC_ZXDCRES);
         } else if ("tablet_rev_confirm_donor".equals(cmd.getCmd())) {
-            notifyObservers(Res.TABLETRES);
+            notifyObservers(Res.ALOC_TABLETRES);
         } else if ("timestamp".equals(cmd.getCmd())) {
             ServerTime.curtime = Long.parseLong(textUnit.ObjToString(cmd.getValue("t")));
             notifyObservers(Res.TIMESTAMP);
@@ -260,9 +260,9 @@ public class ObservableZXDCSignalListenerThread extends Thread implements IDataC
         String s = textUnit.ObjToString(dataCenterTaskCmd.getValue("result"));
         if ("confirm_donor".equals(dataCenterTaskCmd1.getCmd())) {
             if (!"failure".equals(textUnit.ObjToString(dataCenterTaskCmd.getValue("result")))) {
-                notifyObservers(Res.SERVERRES_PASS);
+                notifyObservers(Res.ALOC_SERVERRES_PASS);
             } else {
-                notifyObservers(Res.SERVERRES_NOT_PASS);
+                notifyObservers(Res.ALOC_SERVERRES_NOT_PASS);
             }
         }
     }

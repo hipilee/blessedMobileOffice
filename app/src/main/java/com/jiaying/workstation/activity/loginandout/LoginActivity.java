@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -31,15 +32,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 护士分配浆机
+ * 护士登陆界面
  */
 public class LoginActivity extends BaseActivity {
 
     private static final String TAG = "LoginActivity";
 
-    private GridView mGridView;
-    private NurseAdapter mAdapter;
-    private List<NurseEntity> mList;
+    //nurseGridView 这三个对象形成了适配器模式
+    private GridView nurseGridView;
+    private NurseAdapter nurseAdapter;
+    private List<NurseEntity> nurseList;
+    //nurseGridView 这三个对象形成了适配器模式
+
     private DealFlag login_deal_flag;
     private ImageView iv_logo;
 
@@ -59,28 +63,22 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         new SetTopView(this, R.string.title_activity_pulp_machine_for_nurse, false);
 
+        //使logo图片长按，可以进入服务器信息配置界面。
         iv_logo = (ImageView) findViewById(R.id.iv_logo);
         iv_logo.setEnabled(true);
-        iv_logo.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Intent it = new Intent(LoginActivity.this, ServerSettingActivity.class);
-                startActivity(it);
-                return false;
-            }
-        });
+        setIv_logoOnLongClickListener();
 
-        mGridView = (GridView) findViewById(R.id.gridview);
-        mList = new ArrayList<>();
-        mAdapter = new NurseAdapter(mList, this);
-        mGridView.setAdapter(mAdapter);
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        nurseGridView = (GridView) findViewById(R.id.gridview);
+        nurseList = new ArrayList<>();
+        nurseAdapter = new NurseAdapter(nurseList, this);
+        nurseGridView.setAdapter(nurseAdapter);
+        nurseGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //选择护士后就指纹认证
                 if (login_deal_flag.isFirst()) {
                     DataPreference preference = new DataPreference(LoginActivity.this);
-                    preference.writeStr("nurse_id", mList.get(position).getId());
+                    preference.writeStr("nurse_id", nurseList.get(position).getId());
                     preference.writeLong("login_time", System.currentTimeMillis());
                     preference.commit();
 //                    Intent it = new Intent(LoginActivity.this, FingerprintActivity.class);
@@ -88,6 +86,17 @@ public class LoginActivity extends BaseActivity {
                     startActivity(it);
 
                 }
+            }
+        });
+    }
+
+    private void setIv_logoOnLongClickListener() {
+        iv_logo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent it = new Intent(LoginActivity.this, ServerSettingActivity.class);
+                startActivity(it);
+                return false;
             }
         });
     }
@@ -128,19 +137,22 @@ public class LoginActivity extends BaseActivity {
         public void onSuccess(int i, Header[] headers, byte[] bytes) {
             if (bytes != null && bytes.length > 0) {
                 String result = new String(bytes);
+                Log.e(TAG, "访问护士信息成功，信息为：" + result);
                 if (!TextUtils.isEmpty(result)) {
                     List<NurseEntity> nurseEntityList = JSON.parseArray(result, NurseEntity.class);
                     if (nurseEntityList != null) {
-                        mList.addAll(nurseEntityList);
-                        mAdapter.notifyDataSetChanged();
+                        nurseList.addAll(nurseEntityList);
+                        nurseAdapter.notifyDataSetChanged();
                     }
                 }
+            } else {
+                Log.e(TAG, "访问护士信息成功，无信息");
             }
         }
 
         @Override
         public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
-            MyLog.e(TAG, "users result fail reason:" + throwable.toString());
+            MyLog.e(TAG, "访问护士信息失败" + throwable.toString());
             ToastUtils.showToast(LoginActivity.this, R.string.http_req_fail);
         }
     }
