@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/global_bg"
+    tools:context=".activity.loginandout.LoginActivity"
+    >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/comm_app_title" />
+        <ImageView
+            android:layout_gravity="center_vertical"
+            android:clickable="true"
+            android:id="@+id/iv_logo"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@mipmap/ic_launcher" />
+    </FrameLayout>
+
+    <GridView
+        android:layout_marginTop="@dimen/btn_margin"
+        android:id="@+id/gridview"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:numColumns="4"
+        android:verticalSpacing="@dimen/btn_margin"
+        android:horizontalSpacing="@dimen/btn_margin"
+        android:columnWidth="100dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        />
+<include layout="@layout/copyright_view"/>
+</LinearLayout>
