@@ -279,21 +279,24 @@ public class FingerprintActivity extends BaseActivity implements IfingerprintRea
     protected void onPause() {
         super.onPause();
 //        closeFingerReader();
-        proxyFingerprintReader.close();
+        MyLog.e(TAG,"onPause:" + this.toString());
+
 
     }
+
 
     @Override
     protected void onStop() {
         super.onStop();
+        MyLog.e(TAG,"onStop:" + this.toString());
     }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         MyLog.e(TAG,"onDestroy:" + this.toString());
-//        proxyFingerprintReader.close();
-
+        proxyFingerprintReader.close();
     }
 
     @Override

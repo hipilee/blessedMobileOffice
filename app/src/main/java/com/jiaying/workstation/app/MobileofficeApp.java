@@ -6,6 +6,7 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.jiaying.workstation.entity.PlasmaMachineEntity;
 import com.jiaying.workstation.utils.CrashException;
 import com.jiaying.workstation.utils.MyLog;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +27,9 @@ public class MobileofficeApp extends Application {
     }
     public void initCrash() {
         // 设置该CrashHandler为程序的默认处理器
-        CrashException catchExcep = new CrashException(this);
-        Thread.setDefaultUncaughtExceptionHandler(catchExcep);
+//        CrashException catchExcep = new CrashException(this);
+//        Thread.setDefaultUncaughtExceptionHandler(catchExcep);
+        CrashReport.initCrashReport(getApplicationContext(), "066679fa7d", true);
     }
 
     @Override

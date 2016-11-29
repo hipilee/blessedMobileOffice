@@ -188,6 +188,7 @@ public class LdFingerprintReader implements IfingerprintReader {
             }
 
             int nRet = a6.ZAZGetImage(DEV_ADDR);
+            MyLog.e(TAG,"nRet ==" + nRet);
             if (nRet == 0) {
                 MyLog.e(TAG,"nRet == 0");
                 int[] len = {0, 0};
