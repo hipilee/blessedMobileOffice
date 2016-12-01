@@ -61,6 +61,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
         //  指纹读卡器读取到身份证后才会调用该回调函数
         proxyIdReader.setOnIdReadCallback(this);
         proxyIdReader.setOnIdOpenCallback(this);
+        proxyIdReader.open();
     }
 
     @Override
@@ -83,7 +84,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     @Override
     protected void onResume() {
         super.onResume();
-        proxyIdReader.open();
+//        proxyIdReader.open();
     }
 
     private void showOpenResult(int status) {
