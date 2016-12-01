@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.jiaying.workstation.R;
 import com.jiaying.workstation.activity.BaseActivity;
+import com.jiaying.workstation.activity.MainActivity;
 import com.jiaying.workstation.activity.plasmacollection.ShowDonorInfoActivity;
 import com.jiaying.workstation.constant.IntentExtra;
 import com.jiaying.workstation.constant.TypeConstant;
@@ -18,6 +19,7 @@ import com.jiaying.workstation.engine.LdIdReader;
 import com.jiaying.workstation.engine.ProxyIdReader;
 import com.jiaying.workstation.entity.IdentityCardEntity;
 import com.jiaying.workstation.interfaces.IidReader;
+import com.jiaying.workstation.interfaces.OnCountDownTimerFinishCallback;
 import com.jiaying.workstation.utils.CountDownTimerUtil;
 import com.jiaying.workstation.utils.MyLog;
 import com.jiaying.workstation.utils.SetTopView;
@@ -25,7 +27,7 @@ import com.jiaying.workstation.utils.SetTopView;
 /*
 身份证模块
  */
-public class IdentityCardActivity extends BaseActivity implements IidReader.OnIdReadCallback, IidReader.OnIdopenCallback {
+public class IdentityCardActivity extends BaseActivity implements IidReader.OnIdReadCallback, IidReader.OnIdopenCallback ,OnCountDownTimerFinishCallback {
     private static final String TAG = "IdentityCardActivity";
     private TextView result_txt;
     private TextView state_txt;
@@ -66,10 +68,11 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
         setContentView(R.layout.activity_identity_card);
         new SetTopView(this, R.string.title_activity_identity, true);
         result_txt = (TextView) findViewById(R.id.result_txt);
-
+        photo_image = (ImageView) findViewById(R.id.photo_image);
         //开始倒计时
-        countDownTimerUtil = CountDownTimerUtil.getInstance(result_txt, this);
-        countDownTimerUtil.start();
+//        countDownTimerUtil = CountDownTimerUtil.getInstance(result_txt, this);
+//        countDownTimerUtil.start();
+        startTimer();
     }
 
     @Override
@@ -100,7 +103,8 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
             IdentityCardActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    countDownTimerUtil.cancel();
+//                    countDownTimerUtil.cancel();
+                    finishTimer();
                 }
             });
 
@@ -125,9 +129,10 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
             proxyIdReader.read();
         } else {
             proxyIdReader.close();
-            this.finish();
+//            this.finish();
         }
     }
+
 
     private class runnable implements Runnable {
         @Override
@@ -154,7 +159,7 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
         it.putExtra("idCardNO", idCardNO);
 
         startActivity(it);
-        finish();
+//        finish();
     }
 
     private void goToFaceCollection() {
@@ -162,13 +167,13 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
         it = new Intent(IdentityCardActivity.this, FaceCollectionActivity.class);
         it.putExtra(IntentExtra.EXTRA_TYPE, source);
         startActivity(it);
-        finish();
+//        finish();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        proxyIdReader.close();
+//        proxyIdReader.close();
     }
 
     @Override
@@ -179,10 +184,38 @@ public class IdentityCardActivity extends BaseActivity implements IidReader.OnId
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        proxyIdReader.close();
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        MyLog.e(TAG,"onNewIntent=" + this.toString());
+        startTimer();
+        photo_image.setImageResource(R.mipmap.identity_card);
+        proxyIdReader.read();
+    }
+    private void startTimer(){
+        countDownTimerUtil = CountDownTimerUtil.getInstance(result_txt, this);
+        countDownTimerUtil.setOnCountDownTimerFinishCallback(this);
+        countDownTimerUtil.start();
+    }
+    private void finishTimer(){
         if (countDownTimerUtil != null) {
             countDownTimerUtil.cancel();
             countDownTimerUtil = null;
         }
+    }
+
+    @Override
+    public void onFinish() {
+        dealBackClickEvent();
+    }
+    /**
+     * 处理返回按钮
+     */
+    private void dealBackClickEvent() {
+        finishTimer();
+        startActivity(new Intent(this, MainActivity.class));
     }
 }
 

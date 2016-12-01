@@ -43,7 +43,9 @@ public class LdIdReader implements IidReader {
     }
 
     public synchronized static LdIdReader getInstance(Activity activity) {
-        ldIdReader = new LdIdReader(activity);
+        if(ldIdReader==null){
+            ldIdReader = new LdIdReader(activity);
+        }
         return ldIdReader;
     }
 

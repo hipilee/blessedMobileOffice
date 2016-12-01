@@ -70,6 +70,7 @@
         <activity
             android:name=".activity.sensor.IdentityCardActivity"
             android:label="@string/title_activity_main"
+            android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
         <activity
