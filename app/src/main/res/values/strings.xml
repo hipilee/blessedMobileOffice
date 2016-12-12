@@ -9,6 +9,7 @@
     <string name="caijiang">采浆</string>
     <string name="diaodu">调度</string>
     <string name="chaxun">查询</string>
+    <string name="shebei">设备</string>
     <string name="shuasfz">刷身份证</string>
     <string name="idcard_forget_take">忘带身份证</string>
     <string name="idcard_broken">身份证损坏</string>
@@ -105,4 +106,5 @@
     <string name="input_idcard">手动录入编号</string>
     <string name="input_idcard_wrong_tip">号码位数不正确</string>
     <string name="title_activity_launch2">Launch2Activity</string>
+    <string name="title_activity_device">DeviceActivity</string>
 </resources>

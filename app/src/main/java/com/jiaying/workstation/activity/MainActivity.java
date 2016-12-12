@@ -29,11 +29,12 @@ public class MainActivity extends BaseActivity {
         fragmentManager.beginTransaction().replace(R.id.fragment_container, new RegisterFragment()).commit();
 
         (findViewById(R.id.btn_1)).setVisibility(View.GONE);
-        (findViewById(R.id.btn_2)).setVisibility(View.VISIBLE);
+        (findViewById(R.id.btn_2)).setVisibility(View.GONE);
         (findViewById(R.id.btn_3)).setVisibility(View.GONE);
         (findViewById(R.id.btn_4)).setVisibility(View.VISIBLE);
         (findViewById(R.id.btn_5)).setVisibility(View.GONE);
         (findViewById(R.id.btn_6)).setVisibility(View.GONE);
+        (findViewById(R.id.btn_6)).setVisibility(View.VISIBLE);
     }
 
     @Override
